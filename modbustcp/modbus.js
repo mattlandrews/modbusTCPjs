@@ -9,7 +9,7 @@ module.exports = {
         this.callback = callback;
 
         let byteArray = [this.id & 255];           // id
-        if (this.type === "holdingRegisters") {
+        if (this.type === "readHoldingRegisters") {
             this.func = 3;
             byteArray = byteArray.concat([
                 (this.func & 255),                  // function code
@@ -22,29 +22,27 @@ module.exports = {
         else if (this.type === "writeHoldingRegisters") {
             this.func = 16;
 
-            var data;
-            if (typeof this.data === "function") { data = this.data(); }
-            else { data = this.data; }
-
+            this.data = (Array.isArray(data)) ? data : [data];
             byteArray = byteArray.concat([
                 (this.func & 255),                  // function code
                 (this.register >> 8),               // register (hi byte)
                 (this.register & 255),              // register (lo byte)
                 (this.length >> 8),                 // length (hi byte)
-                (data.length & 255),                // length (lo byte)
-                ((data.length * 2) & 255),          // byte count
+                (this.data.length & 255),                // length (lo byte)
+                ((this.data.length * 2) & 255),          // byte count
             ]);
 
-            for (let i = 0; i < data.length; i++) {
+            for (let i = 0; i < this.data.length; i++) {
                 byteArray = byteArray.concat([
-                    (data[i] >> 8),                 // data (hi byte)
-                    (data[i] & 255),                // data (lo byte)
+                    (this.data[i] >> 8),                 // data (hi byte)
+                    (this.data[i] & 255),                // data (lo byte)
                 ]);
             }
         }
         this.queryByteArray = byteArray;
 
         this.setMBAP = function (id) {
+            if (this.transactionID != null) { this.queryByteArray.splice(0,6); }
             this.transactionID = id;
             this.queryByteArray = [
                 ((this.transactionID >> 8) & 0xFF),

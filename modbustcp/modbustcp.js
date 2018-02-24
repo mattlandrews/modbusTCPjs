@@ -9,12 +9,14 @@ function modbusTCP () {
     var socket = new net.Socket();
     var outstandingQueries = [];
     var transactionID = 0;
+    var status = 0;
 
     this.modbusQuery = modbus.modbusQuery;
 
     this.connect = function (ip, port, callback) {
 
         socket.on("data", function (buffer) {
+            status = 0;
             let reply = new modbus.modbusReply(buffer);
             let query = outstandingQueries.find(function(d){ return (d.transactionID == reply.transactionID); });
             if (query != null) { query.callback(null, reply.data); }
@@ -27,11 +29,13 @@ function modbusTCP () {
         });
 
         socket.connect(port, ip);
-
+        status = 0;
         callback();
     }
 
     this.sendQuery = function (query, callback) {
+        if (status == 1) return;
+        status = 1;
         outstandingQueries.push({ query: query, transactionID: transactionID, callback: callback });
         query.setMBAP(transactionID);
         socket.write(Buffer.from(query.queryByteArray));
