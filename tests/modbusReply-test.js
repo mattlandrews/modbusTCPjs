@@ -1,4 +1,4 @@
-const modbusReply = require("../modbustcp/modbusReply.js");
+const modbusReply = require("../dist/modbusReply.js");
 const expect = require("chai").expect;
 const waterfall = require("async").waterfall;
 
