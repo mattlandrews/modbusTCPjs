@@ -9,10 +9,10 @@ describe("modbusQuery", function () {
         expect(query).to.be.a("object")
             .and.includes({ "id": 1, type: "readHoldingRegisters", func: 3, register: 99, length: 1 });
     });
-    it("#modbusQuery() creates a valid readHoldingRegister query (99:120)", function () {
-        query = new modbusQuery(1, "readHoldingRegisters", 99, 120, null);
+    it("#modbusQuery() creates a valid readHoldingRegister query (100:2)", function () {
+        query = new modbusQuery(1, "readHoldingRegisters", 100, 2, null);
         expect(query).to.be.a("object")
-            .and.includes({ "id": 1, type: "readHoldingRegisters", func: 3, register: 99, length: 120 });
+            .and.includes({ "id": 1, type: "readHoldingRegisters", func: 3, register: 100, length: 2 });
     });
     it("#modbusQuery() creates a valid writeHoldingRegisters query (100:1 - 1)", function () {
         query = new modbusQuery(1, "writeHoldingRegisters", 100, 1, 1);
