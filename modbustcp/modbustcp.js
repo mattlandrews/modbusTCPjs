@@ -9,6 +9,18 @@ module.exports = function () {
     var outstandingQueries = [];
     var transactionID = 0;
     var status = 0;
+    const knownExceptions = {
+        1: "Illegal Function",
+        2: "Illegal Data Address",
+        3: "Illegal Data Value",
+        4: "Slave Device Failure",
+        5: "Acknowledge",
+        6: "Slave Device Busy",
+        7: "Negative Acknowledge",
+        8: "Memory Parity Error",
+        10: "Gateway Path Unavailable",
+        11: "Gateway Target Device Failed to Respond"
+    };
 
     this.modbusQuery = modbusQuery;
 
@@ -23,7 +35,14 @@ module.exports = function () {
             status = 0;
             let reply = new modbusReply(buffer);
             let query = outstandingQueries.find(function(d){ return (d.transactionID == reply.transactionID); });
-            if (query != null) { query.callback(null, reply.data); }
+            if (query != null) {
+                if (reply.exception != null) {
+                    exceptionString = knownExceptions[reply.exception];
+                    if (exceptionString == null) { exceptionString = "Unknown Exception"; }
+                    query.callback(new Error(exceptionString));
+                }
+                else { query.callback(null, reply.data); }
+            }
         });
         socket.on("close", function () {
             self.isConnected = false;
@@ -39,6 +58,10 @@ module.exports = function () {
     }
 
     this.sendQuery = function (query, callback) {
+        if (query.func == null) {
+            callback(new Error("Function not recognized, not sent"), null);
+            return;
+        }
         if (status == 1) return;
         status = 1;
         outstandingQueries.push({ query: query, transactionID: transactionID, callback: callback });

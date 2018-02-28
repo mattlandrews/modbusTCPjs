@@ -28,4 +28,9 @@ describe("modbusQuery", function () {
         expect(query.data).to.be.an("array")
             .and.deep.equals([2,3]);
     });
+    it("#modbusQuery() return null when function is not supported", function () {
+        query = new modbusQuery(1, "unknown", 101, 2, [2,3]);
+        expect(query).to.be.a("object")
+            .and.includes({ "id": 1, type: "unknown", func: null, register: 101, length: 2 });
+    });
 });

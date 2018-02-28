@@ -2,8 +2,9 @@ module.exports = function (buffer) {
     this.replyBuffer = buffer;
     this.transactionID = (buffer[0] << 8) + (buffer[1] & 0xFF);
     this.id = buffer[6];
-    this.func = buffer[7];        
+    this.func = buffer[7];
     this.data = [];
+    this.exception = null;
     if (this.func == 3) {
         this.byteCount = buffer[8];
         let i = 0;
@@ -17,6 +18,9 @@ module.exports = function (buffer) {
     else if (this.func == 16) {
         this.register = (buffer[8] << 8) + (buffer[9] & 0xFF);
         this.length = (buffer[10] << 8) + (buffer[11] & 0xFF);
+    }
+    else if (this.func >= 128) {
+        this.exception = buffer[8];
     }
     return this;
 }

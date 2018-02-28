@@ -37,6 +37,9 @@ module.exports = function (id, type, register, length, data, callback) {
             ]);
         }
     }
+    else {
+        this.func = null;
+    }
     this.queryByteArray = byteArray;
 
     this.setMBAP = function (id) {

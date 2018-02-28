@@ -16,7 +16,7 @@ describe("modbusTCP", function () {
         expect(channel).to.have.property("isConnected").and.equals(false);
     });
 
-    it("#connect() should connect successfully.", function (done) {
+    it("#connect() should connect successfully", function (done) {
         channel.connect("127.0.0.1", 502, function (err) {
             expect(err).to.be.not.null;
             done();
@@ -38,7 +38,23 @@ describe("modbusTCP", function () {
         });
     });
 
-    it("#disconnect() should disconnect successfully.", function () {
+    it("#sendQuery() catches error: unsupported function", function (done) {
+        query = new channel.modbusQuery(1, "unknown", 99, 1, null);
+        channel.sendQuery(query, function(err, result){
+            expect(err).to.be.an("Error");
+            expect(result).to.be.null;
+            done();
+        });
+    });
+
+    it("#sendQuery() catches bad address error", function (done) {
+        query = new channel.modbusQuery(1, "readHoldingRegisters", 98, 1, null);
+        channel.sendQuery(query, function(err, result){
+            done();
+        });
+    });
+
+    it("#disconnect() should disconnect successfully", function () {
         channel.disconnect();
         expect(channel.isConnected).to.equal(false);
     });
