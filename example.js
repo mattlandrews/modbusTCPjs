@@ -1,15 +1,15 @@
-const modbusTCP = require("./dist/modbustcp.js");
+const modbusMaster = require("./dist/modbusMaster.js");
 
-let slave = new modbusTCP();
+let master = new modbusMaster();
 
 // Connect to a local modbus slave on port 502 (standard modbusTCP port)
-slave.connect("127.0.0.1", 502, function () {
+master.connect("127.0.0.1", 502, function () {
 
     // create a new query
-    let query = slave.modbusQuery(1, "readHoldingRegisters", 0, 1, null);
+    let query = new master.modbusQuery(1, "readHoldingRegisters", 0, 1, null);
 
     // send query;
-    slave.sendQuery(query, function(err, data) {
+    master.sendQuery(query, function(err, data) {
 
         if (err) {
             // Write error message to console
@@ -21,7 +21,7 @@ slave.connect("127.0.0.1", 502, function () {
         }
 
         // Disconnect from slave
-        slave.disconnect();
+        master.disconnect();
 
         process.exit(0);
     });

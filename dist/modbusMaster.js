@@ -1,14 +1,13 @@
 const modbusQuery = require("./modbusQuery.js");
 const modbusReply = require("./modbusReply.js");
-const chalk = require("chalk");
 
-module.exports = function () {
+module.exports = function modbusMaster () {
 
-    var net = require("net");
-    var socket = new net.Socket();
-    var outstandingQueries = [];
-    var transactionID = 0;
-    var status = 0;
+    let net = require("net");
+    let socket = new net.Socket();
+    let outstandingQueries = [];
+    let transactionID = 0;
+    let status = 0;
     const knownExceptions = {
         1: "Illegal Function",
         2: "Illegal Data Address",
@@ -65,8 +64,7 @@ module.exports = function () {
         if (status == 1) return;
         status = 1;
         outstandingQueries.push({ query: query, transactionID: transactionID, callback: callback });
-        query.setMBAP(transactionID);
-        socket.write(Buffer.from(query.queryByteArray));
+        socket.write(query.buffer);
         transactionID++;
         if (transactionID > 65535) { transactionID = 0; }
     }

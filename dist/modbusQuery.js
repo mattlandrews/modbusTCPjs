@@ -1,59 +1,75 @@
-module.exports = function (id, type, register, length, data, callback) {
+module.exports = function modbusQuery (id, type, register, length, data, callback) {
+
     this.id = id;
     this.type = type;
     this.register = register;
     this.length = length;
     this.data = data;
+    this.buffer = null;
     this.callback = callback;
 
-    let byteArray = [this.id & 255];           // id
-    if (this.type === "readHoldingRegisters") {
-        this.func = 3;
-        byteArray = byteArray.concat([
-            (this.func & 255),                  // function code
-            (this.register >> 8),               // register (hi byte)
-            (this.register & 255),              // register (lo byte)
-            (this.length >> 8),                 // length (hi byte)
-            (this.length & 255),                // length (lo byte)
-        ]);
-    }
-    else if (this.type === "writeHoldingRegisters") {
-        this.func = 16;
-
-        this.data = (Array.isArray(data)) ? data : [data];
-        byteArray = byteArray.concat([
-            (this.func & 255),                  // function code
-            (this.register >> 8),               // register (hi byte)
-            (this.register & 255),              // register (lo byte)
-            (this.length >> 8),                 // length (hi byte)
-            (this.data.length & 255),                // length (lo byte)
-            ((this.data.length * 2) & 255),          // byte count
-        ]);
-
-        for (let i = 0; i < this.data.length; i++) {
-            byteArray = byteArray.concat([
-                (this.data[i] >> 8),                 // data (hi byte)
-                (this.data[i] & 255),                // data (lo byte)
-            ]);
+    modbusQuery.prototype.queryToBuffer = function () {
+        if (this.type === "readHoldingRegisters") {
+            this.func = 3;
+            let byteLength = 12;
+            this.buffer = Buffer.allocUnsafe(byteLength);
+            this.buffer.writeUInt16BE(this.transactionID, 0);
+            this.buffer.writeUInt16BE(0, 2);
+            this.buffer.writeUInt16BE(6, 4);
+            this.buffer.writeUInt8(this.id, 6);
+            this.buffer.writeUInt8(this.func, 7);
+            this.buffer.writeUInt16BE(this.register, 8);
+            this.buffer.writeUInt16BE(this.length, 10);
+        }
+        else if (this.type === "writeHoldingRegisters") {
+            this.func = 16;
+            if (typeof this.data === "number") { this.data = [this.data]; }
+            let byteLength = 13 + (this.data.length * 2);
+            this.buffer = Buffer.allocUnsafe(byteLength);
+            this.buffer.writeUInt16BE(this.transactionID, 0);
+            this.buffer.writeUInt16BE(0, 2);
+            this.buffer.writeUInt16BE(6, 4);
+            this.buffer.writeUInt8(this.id, 6);
+            this.buffer.writeUInt8(this.func, 7);
+            this.buffer.writeUInt16BE(this.register, 8);
+            this.buffer.writeUInt16BE(this.length, 10);
+            this.buffer.writeUInt8((this.data.length * 2), 12);
+            for (let i=0; i<this.data.length; i++) {
+                this.buffer.writeUInt16BE(this.data[i], (i + 13));
+            }
+        }
+        else {
+            this.func = null;
+            this.buffer = null;
         }
     }
-    else {
-        this.func = null;
-    }
-    this.queryByteArray = byteArray;
 
-    this.setMBAP = function (id) {
-        if (this.transactionID != null) { this.queryByteArray.splice(0,6); }
-        this.transactionID = id;
-        this.queryByteArray = [
-            ((this.transactionID >> 8) & 0xFF),
-            (this.transactionID & 0xFF),
-            0,
-            0,
-            ((this.queryByteArray.length >> 8) & 0xFF),
-            (this.queryByteArray.length & 0xFF)
-        ].concat(this.queryByteArray);
+    modbusQuery.prototype.bufferToQuery = function () {
+        if (this.buffer.length >= 6) {
+            this.transactionID = this.buffer.readUInt16BE(0);
+            let byteLength = this.buffer.readUInt16BE(4);
+            if (this.buffer.length == byteLength + 6) {
+                this.id = this.buffer.readUInt8(6);
+                this.func = this.buffer.readUInt8(7);
+                if (this.func === 3) {
+                    this.type = "readHoldingRegister";
+                    this.register = this.buffer.readUInt16BE(8);
+                    this.length = this.buffer.readUInt16BE(10);
+                }
+                else if (this.func === 16) {
+                    this.type = "readHoldingRegister";
+                    this.register = this.buffer.readUInt16BE(8);
+                    this.length = this.buffer.readUInt16BE(10);
+                    this.data = [];
+                    for (let i=13; i<this.buffer.length; i++) {
+                        this.data.push(this.buffer.readUInt16BE(i));
+                    }
+                }
+            }
+        }
     }
+
+    this.queryToBuffer();
 
     return this;
 };
