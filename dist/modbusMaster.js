@@ -32,7 +32,8 @@ module.exports = function modbusMaster () {
         });
         socket.on("data", function (buffer) {
             status = 0;
-            let reply = new modbusReply(buffer);
+            let reply = new modbusReply();
+            reply.bufferToReply(buffer);
             let query = outstandingQueries.find(function(d){ return (d.transactionID == reply.transactionID); });
             if (query != null) {
                 if (reply.exception != null) {
