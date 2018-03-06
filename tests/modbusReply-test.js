@@ -58,7 +58,6 @@ describe("modbusReply", function () {
         expect(reply.data).deep.equals([]);
         expect(reply.replyBuffer).deep.equals(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x03]));
     });
-
     it("#modbusReply() creates a valid exception - slave device failure", function () {
         reply = new modbusReply();
         reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x04]));

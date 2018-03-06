@@ -28,7 +28,7 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
             this.buffer = Buffer.allocUnsafe(byteLength);
             this.buffer.writeUInt16BE(this.transactionID, 0);
             this.buffer.writeUInt16BE(0, 2);
-            this.buffer.writeUInt16BE(6, 4);
+            this.buffer.writeUInt16BE(byteLength - 6, 4);
             this.buffer.writeUInt8(this.id, 6);
             this.buffer.writeUInt8(this.func, 7);
             this.buffer.writeUInt16BE(this.register, 8);

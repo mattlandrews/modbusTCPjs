@@ -5,7 +5,7 @@ module.exports = function modbusMaster () {
 
     let net = require("net");
     let socket = new net.Socket();
-    let outstandingQueries = [];
+    let outstandingQueries = null;
     let transactionID = 0;
     let status = 0;
     const knownExceptions = {
@@ -34,19 +34,20 @@ module.exports = function modbusMaster () {
             status = 0;
             let reply = new modbusReply();
             reply.bufferToReply(buffer);
-            let query = outstandingQueries.find(function(d){ return (d.transactionID == reply.transactionID); });
-            if (query != null) {
+            if (outstandingQuery != null) {
+                let query = outstandingQuery;
+                outstandingQuery = null;
                 if (reply.exception != null) {
                     exceptionString = knownExceptions[reply.exception];
                     if (exceptionString == null) { exceptionString = "Unknown Exception"; }
                     query.callback(new Error(exceptionString));
                 }
                 else { query.callback(null, reply.data); }
+                
             }
         });
         socket.on("close", function () {
-            self.isConnected = false;
-            socket.connect(port, ip);
+            if (this.isConnected) { socket.connect(port, ip); }
         });
         socket.on("error", function (err) {
             callback(err);
@@ -64,15 +65,15 @@ module.exports = function modbusMaster () {
         }
         if (status == 1) return;
         status = 1;
-        outstandingQueries.push({ query: query, transactionID: transactionID, callback: callback });
+        outstandingQuery = { query: query, transactionID: transactionID, callback: callback };
         socket.write(query.buffer);
         transactionID++;
         if (transactionID > 65535) { transactionID = 0; }
     }
 
     this.disconnect = function () {
-        socket.end();
         this.isConnected = false;
+        socket.end();
     }
 
     this.isConnected = false;
