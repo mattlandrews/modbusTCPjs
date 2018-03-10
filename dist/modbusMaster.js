@@ -5,9 +5,16 @@ module.exports = function modbusMaster () {
 
     let net = require("net");
     let socket = new net.Socket();
-    let outstandingQueries = null;
+    let outstandingQuery = null;
     let transactionID = 0;
     let status = 0;
+    let eventHandlers = {
+        "connect": [],
+        "reply": [],
+        "disconnect": [],
+        "error": []
+    };
+
     const knownExceptions = {
         1: "Illegal Function",
         2: "Illegal Data Address",
@@ -23,15 +30,56 @@ module.exports = function modbusMaster () {
 
     this.modbusQuery = modbusQuery;
 
-    this.connect = function (ip, port, callback) {
+    this.on = function (eventName, handler) {
+        if (typeof eventName != "string") { return; }
+        if (typeof handler != "function") { return; }
+        if (typeof eventHandlers[eventName] != null) {
+            eventHandlers[eventName].push(handler);
+        }
+    };
 
-        var self = this;
+    this.connect = function (ip, port, timeout) {
+        
+        var _ip;
+        var _port;
+        var _timeout;
 
-        socket.on("connect", function () {
-            self.isConnected = true;
-        });
-        socket.on("data", function (buffer) {
+        if ((typeof ip != "string")
+            || (ip.split(".").filter(function(d){ return ((Number(d) >= 0) && (Number(d) <= 255)); }).length != 4 )) {
+            eventHandlers.error.forEach(function(d){ d(new Error("supplied ip of '" + ip + "' is not a valid ip address.")); });
+            return;
+        }
+        _ip = ip;
+
+        if ((typeof port != "number")
+            || ((port < 0) || (port > 65535))) {
+            eventHandlers.error.forEach(function(d){ d(new Error("supplied port of '" + port + "' is not a valid port number.")); });
+            return;
+        }
+        _port = port;
+
+        if ((typeof timeout != "number")
+            || ((timeout < 0) || (timeout > 120000))) {
+            eventHandlers.error.forEach(function(d){ d(new Error("supplied port of '" + timeout + "' is not a valid timeout number (must be between 0ms and 120000ms.")); });
+            return;
+        }
+        _timeout = timeout;
+
+        function socketConnected () {
+            this.isConnected = true;
+            status = 1;
+            eventHandlers.connect.forEach(function (f) { f(); });
+        }
+
+        function socketClosed () {
+            this.isConnected = false;
             status = 0;
+            eventHandlers.disconnect.forEach(function (f) { f(); });
+            if (this.isConnected) { socket.connect(_port, _ip); }
+        }
+
+        function socketData (buffer) {
+            status = 1;
             let reply = new modbusReply();
             reply.bufferToReply(buffer);
             if (outstandingQuery != null) {
@@ -40,31 +88,34 @@ module.exports = function modbusMaster () {
                 if (reply.exception != null) {
                     exceptionString = knownExceptions[reply.exception];
                     if (exceptionString == null) { exceptionString = "Unknown Exception"; }
-                    query.callback(new Error(exceptionString));
+                    eventHandlers.reply.forEach(function (f) { f(new Error(exceptionString)); });
                 }
-                else { query.callback(null, reply.data); }
-                
+                else { eventHandlers.reply.forEach(function (f) { f(null, reply.data, query); }); }
             }
-        });
-        socket.on("close", function () {
-            if (this.isConnected) { socket.connect(port, ip); }
-        });
+        }
+
+        socket.setTimeout(timeout);
+
+        socket.on("connect", socketConnected.bind(this));
+        socket.on("data", socketData.bind(this));
+        socket.on("close", socketClosed.bind(this));
         socket.on("error", function (err) {
-            callback(err);
+            if (outstandingQuery != null) { eventHandlers.error.forEach(function(f){ f(err); }); }
+            if (err.code == "ECONNREFUSED") { socket.connect(_port, _ip); }
         });
 
         socket.connect(port, ip);
-        status = 0;
-        callback();
     }
+
+    this.modbusQuery = modbusQuery;
 
     this.sendQuery = function (query, callback) {
         if (query.func == null) {
-            callback(new Error("Function not recognized, not sent"), null);
+            eventHandlers.error.forEach(function(d){ d(new Error("Function not recognized, not sent")); });
             return;
         }
-        if (status == 1) return;
-        status = 1;
+        if (status == 2) return;
+        status = 2;
         outstandingQuery = { query: query, transactionID: transactionID, callback: callback };
         socket.write(query.buffer);
         transactionID++;
@@ -73,6 +124,7 @@ module.exports = function modbusMaster () {
 
     this.disconnect = function () {
         this.isConnected = false;
+        this.status = 0;
         socket.end();
     }
 
