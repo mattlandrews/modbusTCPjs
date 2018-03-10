@@ -52,12 +52,12 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
                 this.id = this.buffer.readUInt8(6);
                 this.func = this.buffer.readUInt8(7);
                 if (this.func === 3) {
-                    this.type = "readHoldingRegister";
+                    this.type = "readHoldingRegisters";
                     this.register = this.buffer.readUInt16BE(8);
                     this.length = this.buffer.readUInt16BE(10);
                 }
                 else if (this.func === 16) {
-                    this.type = "readHoldingRegister";
+                    this.type = "readHoldingRegisters";
                     this.register = this.buffer.readUInt16BE(8);
                     this.length = this.buffer.readUInt16BE(10);
                     this.data = [];

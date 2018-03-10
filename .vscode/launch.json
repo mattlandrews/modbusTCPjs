@@ -7,8 +7,14 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Example",
-            "program": "${workspaceFolder}/example.js"
+            "name": "Launch Master Example",
+            "program": "${workspaceFolder}/example_master.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Slave Example",
+            "program": "${workspaceFolder}/example_slave.js"
         },
         {
             "type": "node",
