@@ -7,6 +7,16 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Modbus Slave App",
+            "program": "${workspaceFolder}/modbusSlave_app.js",
+            "args": [
+                "--ip 127.0.0.1",
+                "--port 502"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Master Example",
             "program": "${workspaceFolder}/example_master.js"
         },
