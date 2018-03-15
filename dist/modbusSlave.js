@@ -41,7 +41,7 @@ module.exports = function modbusSlave () {
         }
 
         if (port != null) {
-            if ((typeof port != "number")
+            if ((isNaN(port))
                 || ((port < 0) || (port > 65535))) {
                 eventHandlers.error.forEach(function(d){ d(new Error("supplied port of '" + port + "' is not a valid port number.")); });
                 return;
