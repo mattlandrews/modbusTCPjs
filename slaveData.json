@@ -1,0 +1,10 @@
+{
+    "coils": [],
+    "inputs": [],
+    "holdingRegisters": {
+        "0": 6000,
+        "1": 6001,
+        "2": 6002
+    },
+    "inputRegisters": []
+}
