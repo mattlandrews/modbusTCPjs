@@ -27,7 +27,7 @@ module.exports = function modbusSlave () {
         return register;
     };
 
-    this.listen = function (ip, port) {
+    this.listen = function (ip, port, delay) {
         
         var _ip = null;
         var _port = 502;
@@ -48,6 +48,14 @@ module.exports = function modbusSlave () {
                 return;
             }
             _port = port;
+        }
+
+        if (delay != null) {
+            if ((isNaN(delay))
+                || ((delay < 0) || (delay > 120000))) {
+                eventHandlers.error.forEach(function(d){ d(new Error("supplied delay of '" + delay + "' is not a valid delay number.")); });
+                return;
+            }
         }
 
         function socketListening () {
@@ -94,8 +102,12 @@ module.exports = function modbusSlave () {
                 }
                 reply.byteCount = query.length * 2;
                 reply.replyToBuffer();
-                eventHandlers.reply.forEach(function(f){ f(reply); });
-                socket.write(reply.buffer);
+                setTimeout(function () {
+                    if (this.isConnected) {
+                        eventHandlers.reply.forEach(function(f){ f(reply); });
+                        socket.write(reply.buffer);
+                    }
+                }.bind(this), delay);
             }
         }
 

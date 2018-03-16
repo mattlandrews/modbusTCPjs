@@ -130,39 +130,6 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
         }
     }
 
-    modbusQuery.prototype.bufferToQuery_old = function () {
-        this.debugString = ""
-        if (this.buffer.length >= 6) {
-            this.transactionID = this.buffer.readUInt16BE(0);
-            this.debugString += chalk.hex("#99ff33")(blockNumber(this.transactionID, 5));
-            this.debugString += chalk.hex("#33cc33")(blockNumber(this.buffer.readUInt16BE(2), 5));
-            let byteLength = this.buffer.readUInt16BE(4);
-            this.debugString += chalk.hex("#33cc33")(blockNumber(byteLength, 5));
-            if (this.buffer.length == byteLength + 6) {
-                this.id = this.buffer.readUInt8(6);
-                this.debugString += chalk.hex("#ccccff")(blockNumber(this.id, 3));
-                this.func = this.buffer.readUInt8(7);
-                this.debugString += chalk.hex("#3399ff")(blockNumber(this.func, 3));
-                if (this.func === 3) {
-                    this.type = "readHoldingRegisters";
-                    this.register = this.buffer.readUInt16BE(8);
-                    this.debugString += chalk.hex("#ff9933")(blockNumber(this.register, 5));
-                    this.length = this.buffer.readUInt16BE(10);
-                    this.debugString += chalk.hex("#cc6600")(blockNumber(this.length, 5));
-                }
-                else if (this.func === 16) {
-                    this.type = "readHoldingRegisters";
-                    this.register = this.buffer.readUInt16BE(8);
-                    this.length = this.buffer.readUInt16BE(10);
-                    this.data = [];
-                    for (let i=13; i<this.buffer.length; i++) {
-                        this.data.push(this.buffer.readUInt16BE(i));
-                    }
-                }
-            }
-        }
-    }
-
     function rollupBuffer (pos) {
         for (let i=pos; i<this.buffer.length; i++) {
             this.debugString += chalk.hex("#ff0000")(blockNumber(this.buffer[i], 3));

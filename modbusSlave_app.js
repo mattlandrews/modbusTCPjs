@@ -7,6 +7,7 @@ let slave = new modbusSlave();
 
 let _port = 502;
 let _ip = null;
+let _delay = 500;
 let _slaveData = null;
 let _slaveDataPath = null;
 
@@ -24,6 +25,11 @@ for (let i=2; i<process.argv.length; i++) {
             value = process.argv[++i];
             if ((value).match(/\d+\.\d+\.\d+\.\d+/) == null) { throw(new Error('IP "' + value + '" is not recognized as valid.')); }
             _ip = value;
+            break;
+        case "--delay":
+            value = process.argv[++i];
+            if (Number.isNaN(value)) { throw(new Error('Delay "' + value + '" is not recognized as valid.')); }
+            _delay = value;
             break;
         case "--data":
             _slaveDataPath = process.argv[++i];
@@ -67,7 +73,7 @@ function launchSlave (callback) {
     }
 
     // Listen for modbus connections on specified ip/port
-    slave.listen(_ip, _port);
+    slave.listen(_ip, _port, _delay);
 
     function handleListen () {
         console.log("Slave listening to " + ((_ip != null) ? (_ip + ":") : ("")) + _port);
