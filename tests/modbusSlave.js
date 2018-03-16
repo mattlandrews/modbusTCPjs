@@ -41,7 +41,9 @@ describe("modbusSlave", function () {
             expect(slave.isConnected).to.equal(true);
             done();
         });
-        master.sendQuery(new master.modbusQuery(1, "readHoldingRegisters", 0, 1, null));
+        let query = new master.modbusQuery(1, "readHoldingRegisters", 0, 1, null);
+        query.queryToBuffer(query);
+        master.sendQuery(query);
     });
 
     it ("#on - reply event", function (done) {
@@ -50,7 +52,9 @@ describe("modbusSlave", function () {
             expect(slave.isConnected).to.equal(true);
             done();
         });
-        master.sendQuery(new master.modbusQuery(1, "readHoldingRegisters", 0, 1, null));
+        let query = new master.modbusQuery(1, "readHoldingRegisters", 0, 1, null);
+        query.queryToBuffer();
+        master.sendQuery(query);
     });
 
     it ("#on - disconnect event", function (done) {

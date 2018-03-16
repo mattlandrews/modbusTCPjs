@@ -8,7 +8,7 @@ module.exports = function modbusReply() {
     this.register = null;
     this.byteCount = null;
     this.length = null;
-    this.data = null;
+    this.data = [];
     this.exception = null;
     this.buffer = null;
     this.debugString = "";
@@ -59,7 +59,7 @@ module.exports = function modbusReply() {
 
                 // Get Values
                 this.data = [];
-                for (pos += 2; pos < this.buffer.length; pos += 2) {
+                for (pos++; pos < this.buffer.length; pos += 2) {
                     let datum = this.buffer.readUInt16BE(pos);
                     this.data.push(datum);
                     this.debugString += chalk.hex("#888888")(blockNumber(datum, 5));
@@ -73,7 +73,7 @@ module.exports = function modbusReply() {
                 // Get Exception Code
                 pos++;
                 this.exception = this.buffer.readUInt8(pos);
-                this.debugString += chalk.hex("#880000")(blockNumber(exception, 3));
+                this.debugString += chalk.hex("#880000")(blockNumber(this.exception, 3));
             }
             else {
                 rollupBuffer.call(this, pos); return false;
@@ -150,6 +150,12 @@ module.exports = function modbusReply() {
         }
         else {
             return false;
+        }
+    }
+
+    function rollupBuffer (pos) {
+        for (let i=pos; i<this.buffer.length; i++) {
+            this.debugString += chalk.hex("#ff0000")(blockNumber(this.buffer[i], 3));
         }
     }
 

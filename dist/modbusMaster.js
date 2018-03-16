@@ -81,8 +81,7 @@ module.exports = function modbusMaster () {
         function socketData (buffer) {
             status = 1;
             let reply = new modbusReply();
-            reply.buffer = buffer;
-            reply.bufferToReply();
+            reply.bufferToReply(buffer);
             if (outstandingQuery != null) {
                 let query = outstandingQuery;
                 outstandingQuery = null;

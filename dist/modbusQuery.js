@@ -6,10 +6,22 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
     this.type = type;
     this.register = register;
     this.length = length;
-    this.data = data;
+    this.data = Array.isArray(data) ? data : [data];
     this.buffer = null;
     this.callback = callback;
     this.debugString = "";
+
+    switch (this.type) {
+        case "readHoldingRegisters":
+            this.func = 3;
+            break;
+        case "writeHoldingRegisters":
+            this.func = 16;
+            break;
+        default:
+            this.func = null;
+            break;
+    }
 
     modbusQuery.prototype.queryToBuffer = function () {
         if (this.type === "readHoldingRegisters") {

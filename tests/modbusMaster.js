@@ -32,7 +32,9 @@ describe("modbusMaster", function () {
             expect(master.isConnected).to.equal(true);
             done();
         });
-        master.sendQuery(new master.modbusQuery(1, "readHoldingRegisters", 0, 1, null));
+        let query = new master.modbusQuery(1, "readHoldingRegisters", 0, 1, null);
+        query.queryToBuffer();
+        master.sendQuery(query);
     });
 
     it ("#on - disconnect event", function (done) {
@@ -59,7 +61,8 @@ describe("modbusMaster", function () {
 
     it("#sendQuery() should send a readHoldingRegisters(99:1) query", function (done) {
         master = new modbusMaster();
-        query = new master.modbusQuery(1, "readHoldingRegisters", 99, 1, null);
+        let query = new master.modbusQuery(1, "readHoldingRegisters", 99, 1, null);
+        query.queryToBuffer();
         master.connect("127.0.0.1", 502, 500);
         master.on("connect", function(){
             master.sendQuery(query);
@@ -74,7 +77,7 @@ describe("modbusMaster", function () {
 
     it("#sendQuery() catches error: unsupported function", function (done) {
         master = new modbusMaster();
-        query = new master.modbusQuery(1, "unknown", 99, 1, null);
+        let query = new master.modbusQuery(1, "unknown", 99, 1, null);
         master.connect("127.0.0.1", 502, 500);
         master.on("connect", function(){
             master.sendQuery(query);
