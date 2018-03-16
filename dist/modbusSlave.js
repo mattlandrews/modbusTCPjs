@@ -9,6 +9,7 @@ module.exports = function modbusSlave () {
         "listen": [],
         "connect": [],
         "query": [],
+        "reply": [],
         "disconnect": [],
         "close": [],
         "error": []
@@ -22,7 +23,7 @@ module.exports = function modbusSlave () {
         }
     };
 
-    this.getRegisterValue = function (register) {
+    this.getHoldingRegisterValue = function (register) {
         return register;
     };
 
@@ -70,11 +71,10 @@ module.exports = function modbusSlave () {
         }
 
         function socketData (socket, buffer) {
-            eventHandlers.query.forEach(function(f){ f(); });
             status = 1;
             let query = new modbusQuery();
-            query.buffer = buffer;
-            query.bufferToQuery();
+            query.bufferToQuery(buffer);
+            eventHandlers.query.forEach(function(f){ f(query); });
             let reply = new modbusReply();
             reply.transactionID = query.transactionID;
             reply.id = query.id;
@@ -82,11 +82,11 @@ module.exports = function modbusSlave () {
             if (query.func == 3) {
                 reply.data = [];
                 for (let i=0; i<query.length; i++) {
-                    let value = this.getRegisterValue(query.register + i);
+                    let value = this.getHoldingRegisterValue(query.register + i);
                     if (value == null) {
-                        reply.func += 128;
                         reply.exception = 2;
                         reply.replyToBuffer();
+                        eventHandlers.reply.forEach(function(f){ f(reply); });
                         socket.write(reply.buffer);
                         return;
                     }
@@ -94,6 +94,7 @@ module.exports = function modbusSlave () {
                 }
                 reply.byteCount = query.length * 2;
                 reply.replyToBuffer();
+                eventHandlers.reply.forEach(function(f){ f(reply); });
                 socket.write(reply.buffer);
             }
         }

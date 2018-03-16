@@ -36,7 +36,16 @@ describe("modbusSlave", function () {
     });
 
     it ("#on - query event", function (done) {
-        slave.on("query", function () {
+        slave.on("query", function (query) {
+            expect(slave.isListening).to.equal(true);
+            expect(slave.isConnected).to.equal(true);
+            done();
+        });
+        master.sendQuery(new master.modbusQuery(1, "readHoldingRegisters", 0, 1, null));
+    });
+
+    it ("#on - reply event", function (done) {
+        slave.on("reply", function (reply) {
             expect(slave.isListening).to.equal(true);
             expect(slave.isConnected).to.equal(true);
             done();

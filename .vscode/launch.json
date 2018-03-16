@@ -9,9 +9,14 @@
             "request": "launch",
             "name": "Modbus Slave App",
             "program": "${workspaceFolder}/modbusSlave_app.js",
+            "console": "integratedTerminal",
             "args": [
-                "--ip 127.0.0.1",
-                "--port 502"
+                "--ip",
+                "127.0.0.1",
+                "--port",
+                "502",
+                "--data",
+                "./slaveData.json"
             ]
         },
         {
