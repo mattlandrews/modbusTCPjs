@@ -7,7 +7,7 @@ let slave = new modbusSlave();
 
 let _port = 502;
 let _ip = null;
-let _delay = 500;
+let _delay = 0;
 let _slaveData = null;
 let _slaveDataPath = null;
 

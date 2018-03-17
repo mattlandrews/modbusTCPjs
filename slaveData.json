@@ -2,9 +2,9 @@
     "coils": [],
     "inputs": [],
     "holdingRegisters": {
-        "0": 6000,
-        "1": 6001,
-        "2": 6002
+        "0": 2621,
+        "1": 17008,
+        "2": 255
     },
     "inputRegisters": []
 }
