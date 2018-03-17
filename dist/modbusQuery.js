@@ -156,6 +156,8 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
         for (let i=0; i<(pad - s.length); i++) { p += "0"; }
         return "[" + p + s + "]";
     }
+
+    this.modbusQuery.prototype.queryToBuffer.call(this);
     
     return this;
 };
