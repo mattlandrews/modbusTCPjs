@@ -22,6 +22,14 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Modbus Master App",
+            "program": "${workspaceFolder}/modbusMaster_app.js",
+            "console": "integratedTerminal",
+            "args": []
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Master Example",
             "program": "${workspaceFolder}/example_master.js"
         },

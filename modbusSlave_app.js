@@ -84,11 +84,11 @@ function launchSlave (callback) {
     }
 
     function handleQuery (query) {
-        process.stdout.write(query.debugString + "\n");
+        writeToConsole(query, false);
     }
 
     function handleReply (reply) {
-        process.stdout.write("\t\t\t" + reply.debugString + "\n");
+        writeToConsole(reply, true);
     }
 
     function handleDisconnect () {
@@ -99,7 +99,7 @@ function launchSlave (callback) {
         throw(err);
     }
 
-    function writeQueryOrReplyToConsole (query) {
-        process.stdout.write(query.debugString + "\n");
+    function writeToConsole (query, tab) {
+        process.stdout.write(((tab) ? "\t\t" : "") + query.debugString + "\n");
     }
 }
