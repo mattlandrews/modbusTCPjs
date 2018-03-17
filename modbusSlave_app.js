@@ -76,11 +76,11 @@ function launchSlave (callback) {
     slave.listen(_ip, _port, _delay);
 
     function handleListen () {
-        console.log("Slave listening to " + ((_ip != null) ? (_ip + ":") : ("")) + _port);
+        writeToConsole(chalk.cyan("Slave listening to " + ((_ip != null) ? (_ip + ":") : ("")) + _port + "\n"));
     }
 
     function handleConnect () {
-        process.stdout.write(chalk.green("[ Master connected ]\n"));
+        writeToConsole(chalk.green("[ Master connected ]\n"));
     }
 
     function handleQuery (query) {
@@ -92,7 +92,7 @@ function launchSlave (callback) {
     }
 
     function handleDisconnect () {
-        process.stdout.write(chalk.red("[ Master disconnected ]\n"));
+        writeToConsole(chalk.red("[ Master disconnected ]\n"));
     }
 
     function handleError (err) {
@@ -100,6 +100,11 @@ function launchSlave (callback) {
     }
 
     function writeToConsole (query, tab) {
-        process.stdout.write(((tab) ? "\t\t" : "") + query.debugString + "\n");
+        if (typeof query === "string") {
+            process.stdout.write(query + "\n");
+        }
+        else if ((typeof query === object) && (query.debugString)) {
+            process.stdout.write(((tab) ? "\t\t" : "") + query.debugString + "\n");
+        }
     }
 }
