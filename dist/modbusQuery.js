@@ -24,7 +24,92 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
     }
 
     modbusQuery.prototype.queryToBuffer = function () {
-        if (this.type === "readHoldingRegisters") {
+
+        // exit if query isn't defined
+        if (this.type == null) { return; }
+
+        // Predict buffer size
+        let byteSize;
+        if (this.type == "readHoldingRegisters") {
+            this.func = 3;
+            byteSize = 12;
+        }
+        else if (this.func == "writeHoldingRegisters") {
+            this.func = 16;
+            byteSize = (13 + (this.data.length * 2));
+        }
+        
+        this.buffer = Buffer.allocUnsafe(byteSize);
+        this.debugString = "";
+
+        // set TransactionID
+        this.buffer.writeUInt16BE(this.transactionID, 0);
+        this.debugString += chalk.hex("#33cc33")(blockNumber(this.transactionID, 5));
+            
+        // set protocolID
+        this.protocolID = 0;
+        this.buffer.writeUInt16BE(this.protocolID, 2);
+        this.debugString += chalk.hex("#99ff33")(blockNumber(this.protocolID, 5));
+
+        // set byteLength
+        this.buffer.writeUInt16BE(byteSize-6, 4);
+        this.debugString += chalk.hex("#99ff33")(blockNumber((byteSize-6), 5));
+
+        // set deviceID
+        this.buffer.writeUInt16BE(this.id, 6);
+        this.debugString += chalk.hex("#0066ff")(blockNumber(this.id, 3));
+
+        // set function
+        this.buffer.writeUInt8(this.func, 7);
+
+        if (this.func == 3) {
+            this.debugString += chalk.hex("#3399ff")(blockNumber(this.func, 3));
+
+            // set register
+            this.buffer.writeUInt16BE(this.register, 8);
+            this.debugString += chalk.hex("#ff9933")(blockNumber(this.register, 5));
+
+            // set length
+            this.buffer.writeUInt16BE(this.length, 10);
+            this.debugString += chalk.hex("#ff9933")(blockNumber(this.length, 5));
+
+            return true;
+        }
+        else if (this.func == 16) {
+            this.debugString += chalk.hex("#3399ff")(blockNumber(this.func, 3));
+
+            // set register
+            this.buffer.writeUInt16BE(this.register, 8);
+            this.debugString += chalk.hex("#ff9933")(blockNumber(this.register, 5));
+
+            // set length
+            this.buffer.writeUInt16BE(this.length, 10);
+            this.debugString += chalk.hex("#ff9933")(blockNumber(this.length, 5));
+
+            // set data length
+            this.buffer.writeUInt16BE(this.id, 12);
+            this.debugString += chalk.hex("#ff9933")(blockNumber((this.data.length * 2), 3));
+
+            // set data
+            for (let i = 0; i < this.data.length; i++) {
+                this.buffer.writeUInt16BE(this.data[i], (13 + (i * 2)));
+                this.debugString += chalk.hex("#888888")(blockNumber(this.data[i], 5));
+            }
+            return true;
+        }
+        else if (this.exception != null) {
+            this.debugString += chalk.hex("#880000")(blockNumber(this.func, 3));
+
+            // set exception code
+            this.buffer.writeUInt8(this.exception, 8);
+            this.debugString += chalk.hex("#880000")(blockNumber(this.exception, 3));
+            return true;
+        }
+        else {
+            return false;
+        }
+
+        /*if (this.type === "readHoldingRegisters") {
             this.func = 3;
             let byteLength = 12;
             this.buffer = Buffer.allocUnsafe(byteLength);
@@ -56,7 +141,7 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
         else {
             this.func = null;
             this.buffer = null;
-        }
+        }*/
     }
 
     modbusQuery.prototype.bufferToQuery = function (buffer) {

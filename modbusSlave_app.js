@@ -103,7 +103,7 @@ function launchSlave (callback) {
         if (typeof query === "string") {
             process.stdout.write(query + "\n");
         }
-        else if ((typeof query === object) && (query.debugString)) {
+        else if ((query != null) && (query.debugString != null)) {
             process.stdout.write(((tab) ? "\t\t" : "") + query.debugString + "\n");
         }
     }

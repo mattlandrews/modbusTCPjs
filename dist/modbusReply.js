@@ -89,7 +89,7 @@ module.exports = function modbusReply() {
             this.func = 3;
             byteSize = (9 + this.byteCount);
         }
-        else if (this.func == "readHoldingRegisters") {
+        else if (this.func == "writeHoldingRegisters") {
             this.func = 16;
             byteSize = (13 + (this.data.length * 2));
         }

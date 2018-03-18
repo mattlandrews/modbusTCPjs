@@ -10,6 +10,7 @@ module.exports = function modbusMaster () {
     let status = 0;
     let eventHandlers = {
         "connect": [],
+        "query": [],
         "reply": [],
         "disconnect": [],
         "error": []
@@ -90,7 +91,7 @@ module.exports = function modbusMaster () {
                     if (exceptionString == null) { exceptionString = "Unknown Exception"; }
                     eventHandlers.reply.forEach(function (f) { f(new Error(exceptionString)); });
                 }
-                else { eventHandlers.reply.forEach(function (f) { f(null, reply.data, query); }); }
+                else { eventHandlers.reply.forEach(function (f) { f(null, reply.data, reply); }); }
             }
         }
 
@@ -117,6 +118,9 @@ module.exports = function modbusMaster () {
         if (status == 2) return;
         status = 2;
         outstandingQuery = { query: query, transactionID: transactionID, callback: callback };
+        query.transactionID = transactionID;
+        query.queryToBuffer();
+        eventHandlers.query.forEach(function(f){ f(query); });
         socket.write(query.buffer);
         transactionID++;
         if (transactionID > 65535) { transactionID = 0; }

@@ -66,10 +66,15 @@ module.exports = function modbusSlave () {
 
         function socketConnection (_socket) {
             _socket.on("data", socketData.bind(this, _socket));
+            _socket.on("error", socketError);
             _socket.on("close", socketDisconnect.bind(this));
             this.isConnected = true;
             status = 2;
             eventHandlers.connect.forEach(function (f) { f(); });
+        }
+
+        function socketError (err) {
+            if (err.code != "ECONNRESET") { eventHandlers.error.forEach(function(f){ f(err); }); }
         }
 
         function socketDisconnect () {
