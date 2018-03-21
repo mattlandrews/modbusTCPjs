@@ -1,14 +1,14 @@
 const chalk = require("chalk");
 
-module.exports = function modbusQuery (id, type, register, length, data, callback) {
+module.exports = function modbusQuery (id, type, register, length, data) {
 
-    this.id = id;
-    this.type = type;
-    this.register = register;
-    this.length = length;
-    this.data = Array.isArray(data) ? data : [data];
+    this.id = (id != null) ? id : 1;
+    this.type = (type != null) ? type : "readHoldingRegisters";
+    this.register = (register != null) ? register : 0;
+    this.length = (length != null) ? length : 1;
+    this.data = (data != null) ? data : [];
+    
     this.buffer = null;
-    this.callback = callback;
     this.debugString = "";
 
     switch (this.type) {
@@ -34,7 +34,7 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
             this.func = 3;
             byteSize = 12;
         }
-        else if (this.func == "writeHoldingRegisters") {
+        else if (this.type == "writeHoldingRegisters") {
             this.func = 16;
             byteSize = (13 + (this.data.length * 2));
         }
@@ -56,7 +56,7 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
         this.debugString += chalk.hex("#99ff33")(blockNumber((byteSize-6), 5));
 
         // set deviceID
-        this.buffer.writeUInt16BE(this.id, 6);
+        this.buffer.writeUInt8(this.id, 6);
         this.debugString += chalk.hex("#0066ff")(blockNumber(this.id, 3));
 
         // set function
@@ -87,7 +87,7 @@ module.exports = function modbusQuery (id, type, register, length, data, callbac
             this.debugString += chalk.hex("#ff9933")(blockNumber(this.length, 5));
 
             // set data length
-            this.buffer.writeUInt16BE(this.id, 12);
+            this.buffer.writeUInt8((this.data.length * 2), 12);
             this.debugString += chalk.hex("#ff9933")(blockNumber((this.data.length * 2), 3));
 
             // set data
