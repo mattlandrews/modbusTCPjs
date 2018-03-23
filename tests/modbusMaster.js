@@ -61,7 +61,7 @@ describe("modbusMaster", function () {
 
     it("#sendQuery() should send a readHoldingRegisters(99:1) query", function (done) {
         master = new modbusMaster();
-        let query = new master.modbusQuery(1, "readHoldingRegisters", 99, 1, null);
+        let query = new master.modbusQuery({ id: 1, type: "readHoldingRegisters", register: 99, length: 1 });
         query.queryToBuffer();
         master.connect("127.0.0.1", 502, 500);
         master.on("connect", function(){
@@ -77,7 +77,7 @@ describe("modbusMaster", function () {
 
     it("#sendQuery() catches error: unsupported function", function (done) {
         master = new modbusMaster();
-        let query = new master.modbusQuery(1, "unknown", 99, 1, null);
+        let query = new master.modbusQuery({ id: 1, type: "unknown", register: 99, length: 1 });
         master.connect("127.0.0.1", 502, 500);
         master.on("connect", function(){
             master.sendQuery(query);

@@ -1,12 +1,27 @@
 const chalk = require("chalk");
 
-module.exports = function modbusQuery (id, type, register, length, data) {
+module.exports = function modbusQuery (opts) {
 
-    this.id = (id != null) ? id : 1;
-    this.type = (type != null) ? type : "readHoldingRegisters";
-    this.register = (register != null) ? register : 0;
-    this.length = (length != null) ? length : 1;
-    this.data = (data != null) ? data : [];
+    this.transactionID = 0;
+    this.protocolID = 0;
+    this.id = 1;
+    this.type = "readHoldingRegisters";
+    this.register = 0;
+    this.length = 1;
+    this.data = [];
+    this.dataByteLength = 0;
+
+    if ((opts != null) && (typeof opts === "object")) {
+        if (opts.transaction != null) { this.transaction = opts.transaction; }
+        if (opts.id != null) { this.id = opts.id; }
+        if (opts.type != null) { this.type = opts.type; }
+        if (opts.register != null) { this.register = opts.register; }
+        if (opts.length != null) { this.length = opts.length; }
+        if (opts.data != null) {
+            this.data = opts.data;
+            this.dataByteLength = this.data.length * 2;
+        }
+    }
     
     this.buffer = null;
     this.debugString = "";
@@ -23,7 +38,7 @@ module.exports = function modbusQuery (id, type, register, length, data) {
             break;
     }
 
-    modbusQuery.prototype.queryToBuffer = function () {
+    this.queryToBuffer = function () {
 
         // exit if query isn't defined
         if (this.type == null) { return; }
@@ -38,6 +53,9 @@ module.exports = function modbusQuery (id, type, register, length, data) {
             this.func = 16;
             byteSize = (13 + (this.data.length * 2));
         }
+        else {
+            byteSize = 9;
+        }
         
         this.buffer = Buffer.allocUnsafe(byteSize);
         this.debugString = "";
@@ -47,7 +65,6 @@ module.exports = function modbusQuery (id, type, register, length, data) {
         this.debugString += chalk.hex("#33cc33")(blockNumber(this.transactionID, 5));
             
         // set protocolID
-        this.protocolID = 0;
         this.buffer.writeUInt16BE(this.protocolID, 2);
         this.debugString += chalk.hex("#99ff33")(blockNumber(this.protocolID, 5));
 
@@ -108,48 +125,15 @@ module.exports = function modbusQuery (id, type, register, length, data) {
         else {
             return false;
         }
-
-        /*if (this.type === "readHoldingRegisters") {
-            this.func = 3;
-            let byteLength = 12;
-            this.buffer = Buffer.allocUnsafe(byteLength);
-            this.buffer.writeUInt16BE(this.transactionID, 0);
-            this.buffer.writeUInt16BE(0, 2);
-            this.buffer.writeUInt16BE(6, 4);
-            this.buffer.writeUInt8(this.id, 6);
-            this.buffer.writeUInt8(this.func, 7);
-            this.buffer.writeUInt16BE(this.register, 8);
-            this.buffer.writeUInt16BE(this.length, 10);
-        }
-        else if (this.type === "writeHoldingRegisters") {
-            this.func = 16;
-            if (typeof this.data === "number") { this.data = [this.data]; }
-            let byteLength = 13 + (this.data.length * 2);
-            this.buffer = Buffer.allocUnsafe(byteLength);
-            this.buffer.writeUInt16BE(this.transactionID, 0);
-            this.buffer.writeUInt16BE(0, 2);
-            this.buffer.writeUInt16BE(byteLength - 6, 4);
-            this.buffer.writeUInt8(this.id, 6);
-            this.buffer.writeUInt8(this.func, 7);
-            this.buffer.writeUInt16BE(this.register, 8);
-            this.buffer.writeUInt16BE(this.length, 10);
-            this.buffer.writeUInt8((this.data.length * 2), 12);
-            for (let i=0; i<this.data.length; i++) {
-                this.buffer.writeUInt16BE(this.data[i], (i + 13));
-            }
-        }
-        else {
-            this.func = null;
-            this.buffer = null;
-        }*/
     }
 
-    modbusQuery.prototype.bufferToQuery = function (buffer) {
+    this.bufferToQuery = function (buffer) {
         this.buffer = buffer;
-        this.bufferString = "";
+        this.debugString = "";
 
         // This variable is used to mark your current position within the buffer
         let pos = 0;
+        let byteLength;
 
         // Check that an MBAP header is present (always 6 bytes in length)
         if (this.buffer.length >= 6) {
@@ -166,9 +150,9 @@ module.exports = function modbusQuery (id, type, register, length, data) {
 
             // Get byteLength
             pos += 2;
-            this.byteLength = this.buffer.readUInt16BE(pos);
-            if (buffer.length != (this.byteLength + 6)) { rollupBuffer(pos); return false; }
-            this.debugString += chalk.hex("#99ff33")(blockNumber(this.byteLength, 5));
+            byteLength = this.buffer.readUInt16BE(pos);
+            if (buffer.length != (byteLength + 6)) { rollupBuffer(pos); return false; }
+            this.debugString += chalk.hex("#99ff33")(blockNumber(byteLength, 5));
 
             // Get deviceID
             pos += 2;
@@ -211,9 +195,14 @@ module.exports = function modbusQuery (id, type, register, length, data) {
                 this.length = this.buffer.readUInt16BE(pos);
                 this.debugString += chalk.hex("#ff9933")(blockNumber(this.length, 5));
 
+                // Get data byte length
+                pos += 2;
+                this.dataByteLength = this.buffer.readUInt8(pos);
+                this.debugString += chalk.hex("#ff9933")(blockNumber(this.dataByteLength, 3));
+
                 // Get Data
                 this.data = [];
-                for (pos += 2; pos < this.buffer.length; pos += 2) {
+                for (pos ++; pos < this.buffer.length; pos += 2) {
                     let datum = this.buffer.readUInt16BE(pos);
                     this.data.push(datum);
                     this.debugString += chalk.hex("#888888")(blockNumber(datum, 5));
@@ -242,7 +231,7 @@ module.exports = function modbusQuery (id, type, register, length, data) {
         return "[" + p + s + "]";
     }
 
-    modbusQuery.prototype.queryToBuffer.call(this);
+    this.queryToBuffer();
     
     return this;
 };

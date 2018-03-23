@@ -4,101 +4,47 @@ const waterfall = require("async").waterfall;
 
 describe("modbusReply", function () {
 
-    it("#modbusReply() creates a valid readHoldingRegister reply (1 - [0])", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x01, 0x03, 0x02, 0x00, 0x00]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 3, transactionID: 0, byteCount: 2 });
-        expect(reply.data).deep.equals([0]);
+    describe("#modbusReply()", function () {
+        it ("modbusReply() creates an empty reply object.", function () {
+            let reply = new modbusReply();
+            expect(reply).to.be.an("object")
+                .and.includes({ transaction: 0, id: 1, type: "readHoldingRegisters", func: 3, register: 0, length: 1, dataByteLength: 2 });
+            expect(reply.data).to.deep.equal([0]);
+            expect(reply.buffer).to.deep.equal(new Buffer([0,0,0,0,0,5,1,3,2,0,0]));
+        });    
+        it ("modbusReply() creates a valid readHoldingRegisters reply.", function () {
+            let reply = new modbusReply({ transaction: 1, id:10, type: "readHoldingRegisters", data: [4,3,2,1] });
+            expect(reply).to.be.an("object")
+                .and.includes({ transaction: 1, id: 10, type: "readHoldingRegisters", func: 3, dataByteLength: 8 });
+            expect(reply.data).to.deep.equal([4,3,2,1]);
+            expect(reply.buffer).to.deep.equal(new Buffer([0,1,0,0,0,11,10,3,8,0,4,0,3,0,2,0,1]));
+        });    
+        it ("modbusQuery() creates a valid writeHoldingRegisters reply.", function () {
+            let reply = new modbusReply({ transaction: 2, id: 3, type: "writeHoldingRegisters", register: 50, length: 3 });
+            expect(reply).to.be.a("object")
+                .and.includes({ transaction: 2, id: 3, type: "writeHoldingRegisters", func: 16, register: 50, length: 3, dataByteLength: 0 });
+            expect(reply.data).to.deep.equal([]);
+            expect(reply.buffer).to.deep.equal(new Buffer([0,2,0,0,0,6,3,16,0,50,0,3]));
+        });
     });
-    it("#modbusReply() creates a valid readHoldingRegister reply (2 - [1,2])", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x01, 0x00, 0x00, 0x00, 0x07, 0x01, 0x03, 0x04, 0x00, 0x01, 0x00, 0x02]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 3, transactionID: 1, byteCount: 4 });
-        expect(reply.data).deep.equals([1,2]);
-    });
-    it("#modbusReply() creates a valid writeHoldingRegisters reply (1)", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x02, 0x00, 0x00, 0x00, 0x06, 0x01, 0x10, 0x00, 0x64, 0x00, 0x01]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 16, transactionID: 2 });
-    });
-    it("#modbusReply() creates a valid writeHoldingRegisters reply (2)", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x03, 0x00, 0x00, 0x00, 0x06, 0x01, 0x10, 0x00, 0x65, 0x00, 0x02]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 16, transactionID: 3 });
-    });        
-    it("#modbusReply() creates a valid exception - illegal function", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x04, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x01]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 4, exception: 1 });
-        expect(reply.data).deep.equals([]);
-    });
-    it("#modbusReply() creates a valid exception - illegal data address", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x02]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 5, exception: 2 });
-        expect(reply.data).deep.equals([]);
-    });
-    it("#modbusReply() creates a valid exception - illegal data value", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x03]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 5, exception: 3 });
-        expect(reply.data).deep.equals([]);
-    });
-    it("#modbusReply() creates a valid exception - slave device failure", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x04]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 5, exception: 4 });
-        expect(reply.data).deep.equals([]);
-    });
-    it("#modbusReply() creates a valid exception - acknowledge", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x05]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 5, exception: 5 });
-        expect(reply.data).deep.equals([]);
-    });
-    it("#modbusReply() creates a valid exception - slave device busy", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x06]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 5, exception: 6 });
-        expect(reply.data).deep.equals([]);
-    });
-    it("#modbusReply() creates a valid exception - negative acknowledge", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x07]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 5, exception: 7 });
-        expect(reply.data).deep.equals([]);
-    });
-    it("#modbusReply() creates a valid exception - memory parity error", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x08]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 5, exception: 8 });
-        expect(reply.data).deep.equals([]);
-    });
-    it("#modbusReply() creates a valid exception - gatway path unavailable", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x0A]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 5, exception: 10 });
-        expect(reply.data).deep.equals([]);
-    });
-    it("#modbusReply() creates a valid exception - gateway target device failed to respond", function () {
-        reply = new modbusReply();
-        reply.bufferToReply(new Buffer([0x00, 0x05, 0x00, 0x00, 0x00, 0x03, 0x01, 0x80, 0x0B]));
-        expect(reply).to.be.a("object")
-            .and.contains({ id: 1, func: 128, transactionID: 5, exception: 11 });
-        expect(reply.data).deep.equals([]);
+
+    describe("#bufferToReply()", function () {
+        it ("bufferToReply() creates a valid readHoldingRegisters reply", function () {
+            let reply = new modbusReply();
+            reply.bufferToReply(new Buffer([0,3,0,0,0,7,12,3,4,0,10,0,11]));
+            expect(reply).to.be.an("object")
+                .and.includes({ transaction: 3, id: 12, type: "readHoldingRegisters", func: 3, length: 2, dataByteLength: 4 });
+            expect(reply.data).to.deep.equal([10,11]);
+            expect(reply.buffer).to.deep.equal(new Buffer([0,3,0,0,0,7,12,3,4,0,10,0,11]));
+        });
+        it ("bufferToReply() creates a valid writeHoldingRegisters reply", function () {
+            let reply = new modbusReply();
+            reply.bufferToReply(new Buffer([0,4,0,0,0,6,15,16,0,50,0,3]));
+            expect(reply).to.be.an("object")
+                .and.includes({ transaction: 4, id: 15, type: "writeHoldingRegisters", func: 16, length: 3, register: 50, dataByteLength: 0 });
+            expect(reply.data).to.deep.equal([]);
+            expect(reply.buffer).to.deep.equal(new Buffer([0,4,0,0,0,6,15,16,0,50,0,3]));
+        });
     });
 
 });

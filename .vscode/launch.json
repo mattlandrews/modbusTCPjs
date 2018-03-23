@@ -53,6 +53,12 @@
                 "${workspaceFolder}/tests"
             ],
             "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test Problem",
+            "program": "${workspaceFolder}/test.js"
         }
     ]
 }
