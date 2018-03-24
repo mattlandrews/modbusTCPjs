@@ -1,49 +1,69 @@
-const modbusQuery = require("../dist/modbusQuery.js");
+const { modbusQuery } = require("../dist/temp.js");
 const expect = require("chai").expect;
 const waterfall = require("async").waterfall;
 
 describe("modbusQuery", function () {
 
+    let query;
+    beforeEach(function () {
+        query = new modbusQuery();
+    });
     describe("#modbusQuery()", function () {
-        it ("modbusQuery() creates an empty query object.", function () {
-            query = new modbusQuery();
-            expect(query).to.be.an("object")
-                .and.includes({ transactionID: 0, id: 1, type: "readHoldingRegisters", func: 3, register: 0, length: 1, dataByteLength: 0 });
-            expect(query.data).to.deep.equal([]);
-            expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,6,1,3,0,0,0,1]));
-        });
-        it ("modbusQuery() creates a valid readHoldingRegisters query.", function () {
-            query = new modbusQuery({ id: 10, type: "readHoldingRegisters", register: 100, length: 120 });
-            expect(query).to.be.an("object")
-                .and.includes({ transactionID: 0, id: 10, type: "readHoldingRegisters", func: 3, register: 100, length: 120, dataByteLength: 0 });
-            expect(query.data).to.deep.equal([]);
-            expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,6,10,3,0,100,0,120]));
-        });    
-        it ("modbusQuery() creates a valid writeHoldingRegisters query.", function () {
-            query = new modbusQuery({ id: 3, type: "writeHoldingRegisters", register: 50, length: 3, data: [2,3,4] });
-            expect(query).to.be.a("object")
-                .and.includes({ transactionID: 0, id: 3, type: "writeHoldingRegisters", func: 16, register: 50, length: 3, dataByteLength: 6 });
-            expect(query.data).to.deep.equal([2,3,4]);
-            expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,13,3,16,0,50,0,3,6,0,2,0,3,0,4]));
+        it("modbusQuery()", function () {
+            expect(query).to.be.a("object");
         });
     });
-
-    describe("#bufferToQuery()", function () {
-        it ("bufferToQuery() creates a valid readHoldingRegisters query.", function () {
-            query = new modbusQuery();
-            query.bufferToQuery(new Buffer([1,0,0,0,0,6,5,3,0,20,0,30]));
-            expect(query).to.be.an("object")
-                .and.includes({ transactionID: 256, id: 5, type: "readHoldingRegisters", func: 3, register: 20, length: 30, dataByteLength: 0 });
-            expect(query.data).to.deep.equal([]);
-            expect(query.buffer).to.deep.equal(new Buffer([1,0,0,0,0,6,5,3,0,20,0,30]));
+    describe("#getDevice()", function () {
+        it("getDevice()", function () {
+            expect(query.getDevice()).to.equal(1);
         });
-        it ("bufferToQuery() creates a valid writeHoldingRegisters query.", function () {
-            query = new modbusQuery();
-            query.bufferToQuery(new Buffer([1,1,0,0,0,11,7,16,0,21,0,2,4,0,33,0,34]));
-            expect(query).to.be.an("object")
-                .and.includes({ transactionID: 257, id: 7, type: "writeHoldingRegisters", func: 16, register: 21, length: 2, dataByteLength: 4 });
-            expect(query.data).to.deep.equal([33,34]);
-            expect(query.buffer).to.deep.equal(new Buffer([1,1,0,0,0,11,7,16,0,21,0,2,4,0,33,0,34]));
+    });
+    describe("#setDevice()", function () {
+        it("getDevice()", function () {
+            query.setDevice(3);
+            expect(query.getDevice()).to.equal(3);
+        });
+    });
+    describe("#getTransaction()", function () {
+        it("getTransaction()", function () {
+            expect(query.getTransaction()).to.equal(0);
+        });
+    });
+    describe("#setTransaction()", function () {
+        it("setTransaction()", function () {
+            query.setTransaction(22);
+            expect(query.getTransaction()).to.equal(22);
+        });
+    });
+    describe("#toString()", function () {
+        it("toString()", function () {
+            expect(query.toString()).to.equal('{"transaction":0,"protocol":0,"byteLength":null,"device":1,"func":null,"register":null,"length":null,"data":null,"dataByteLength":null}');
+        });
+    });
+    describe("#readHoldingRegisters", function () {
+        it("readHoldingRegisters()", function () {
+            query.setTransaction(35);
+            query.setDevice(2);
+            query.readHoldingRegisters(102,34);
+            expect(JSON.parse(query.toString())).to.includes({ transaction: 35, protocol: 0, byteLength: 6, device: 2, func: 3, register: 102, length: 34, data: null, dataByteLength: null });
+        });
+    });
+    describe("#getBuffer()", function () {
+        it("getBuffer() w/ empty query", function () {
+            expect(query.getBuffer()).to.equal(null);
+        });
+        it("getBuffer() w/ defined query", function () {
+            query.setTransaction(100);
+            query.setDevice(13);
+            query.readHoldingRegisters(60, 5);
+            expect(query.getBuffer()).to.deep.equal(new Buffer([0,100,0,0,0,6,13,3,0,60,0,5]));
+        });
+    });
+    describe("#setBuffer()", function () {
+        it("setBuffer()", function () {
+            let query = new modbusQuery();
+            query.setBuffer(new Buffer([0,101,0,0,0,6,14,3,0,61,0,4]));
+            expect(JSON.parse(query.toString())).to.include({ transaction: 101, protocol: 0, byteLength: 6, device: 14, func: 3, register: 61, length: 4, data: null, dataByteLength: null });
         });
     });
 

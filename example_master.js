@@ -1,4 +1,4 @@
-const modbusMaster = require("./dist/modbusMaster.js");
+const { modbusMaster, modbusQuery } = require("./dist/modbusTCPjs.js");
 
 let master = new modbusMaster();
 
@@ -7,7 +7,9 @@ let master = new modbusMaster();
 master.on("connect", function () {
 
     // create a new query
-    let query = master.modbusQuery(1, "readHoldingRegisters", 0, 1, null);
+    let query = new modbusQuery();
+    query.setDevice(1);
+    query.readHoldingRegisters(0,1);
     master.sendQuery(query);
 });
 
@@ -17,8 +19,12 @@ master.on("reply", function (err, reply) {
         console.error(err);
     }
     else {
-        let query = master.modbusQuery(1, "readHoldingRegisters", 0, 1, null);
-        setTimeout(master.sendQuery.bind(this, query), 1000);
+        let query = new modbusQuery();
+        query.setDevice(1);
+        query.readHoldingRegisters(0,1);
+        setTimeout(function () {
+            master.sendQuery(query)
+        }, 1000);
     }
 });
 
