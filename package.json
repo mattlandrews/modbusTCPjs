@@ -6,7 +6,7 @@
   "scripts": {
     "testQuery": "mocha ./tests/modbusQuery.js",
     "testReply": "mocha ./tests/modbusReply.js",
-    "test": "mocha ./tests",
+    "test": "mocha ./tests/.",
     "testWatch": "mocha --watch ./tests"
   },
   "author": "Matt Andrews",

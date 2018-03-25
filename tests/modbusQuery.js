@@ -1,4 +1,4 @@
-const { modbusQuery } = require("../dist/temp.js");
+const { modbusQuery } = require("../dist/modbusTCPjs.js");
 const expect = require("chai").expect;
 const waterfall = require("async").waterfall;
 
@@ -33,6 +33,26 @@ describe("modbusQuery", function () {
         it("setTransaction()", function () {
             query.setTransaction(22);
             expect(query.getTransaction()).to.equal(22);
+        });
+    });
+    describe("#getFunction()", function () {
+        it("getFunction()", function () {
+            expect(query.getFunction()).to.equal(null);
+        });
+    });
+    describe("#getRegister()", function () {
+        it("getRegister()", function () {
+            expect(query.getRegister()).to.equal(null);
+        });
+    });
+    describe("#getLength()", function () {
+        it("getLength()", function () {
+            expect(query.getLength()).to.equal(null);
+        });
+    });
+    describe("#getData()", function () {
+        it("getData", function () {
+            expect(query.getData()).to.deep.equal(null);
         });
     });
     describe("#toString()", function () {

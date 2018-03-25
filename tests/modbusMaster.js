@@ -1,5 +1,4 @@
-const modbusMaster = require("../dist/modbusMaster.js");
-const modbusSlave = require("../dist/modbusSlave.js");
+const { modbusMaster, modbusSlave, modbusQuery } = require("../dist/modbusTCPjs.js");
 const expect = require("chai").expect;
 const waterfall = require("async").waterfall;
 
@@ -13,7 +12,6 @@ describe("modbusMaster", function () {
         expect(master).to.have.property("connect").and.is.a("function");
         expect(master).to.have.property("sendQuery").and.is.a("function");
         expect(master).to.have.property("disconnect").and.is.a("function");
-        expect(master).to.have.property("modbusQuery").and.is.a("function");
         expect(master).to.have.property("isConnected").and.equals(false);
     });
 
@@ -32,8 +30,9 @@ describe("modbusMaster", function () {
             expect(master.isConnected).to.equal(true);
             done();
         });
-        let query = new master.modbusQuery(1, "readHoldingRegisters", 0, 1, null);
-        query.queryToBuffer();
+        let query = new modbusQuery();
+        query.setDevice(1);
+        query.readHoldingRegisters(0, 1);
         master.sendQuery(query);
     });
 
@@ -61,8 +60,9 @@ describe("modbusMaster", function () {
 
     it("#sendQuery() should send a readHoldingRegisters(99:1) query", function (done) {
         master = new modbusMaster();
-        let query = new master.modbusQuery({ id: 1, type: "readHoldingRegisters", register: 99, length: 1 });
-        query.queryToBuffer();
+        let query = new modbusQuery();
+        query.setDevice(1);
+        query.readHoldingRegisters(99, 1);
         master.connect("127.0.0.1", 502, 500);
         master.on("connect", function(){
             master.sendQuery(query);
@@ -71,19 +71,6 @@ describe("modbusMaster", function () {
             expect(err).to.be.null;
             expect(res).lengthOf(1)
                 .with.contains(99);
-            done();
-        });
-    });
-
-    it("#sendQuery() catches error: unsupported function", function (done) {
-        master = new modbusMaster();
-        let query = new master.modbusQuery({ id: 1, type: "unknown", register: 99, length: 1 });
-        master.connect("127.0.0.1", 502, 500);
-        master.on("connect", function(){
-            master.sendQuery(query);
-        });
-        master.on("error", function(err){
-            expect(err).to.be.an("Error");
             done();
         });
     });
