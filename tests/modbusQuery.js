@@ -86,5 +86,20 @@ describe("modbusQuery", function () {
             expect(JSON.parse(query.toString())).to.include({ transaction: 101, protocol: 0, byteLength: 6, device: 14, func: 3, register: 61, length: 4, data: null, dataByteLength: null });
         });
     });
-
+    describe("#set functions also alters buffer when query is fully defined", function () {
+        it("setTransaction() & setDevice()", function () {
+            let query = new modbusQuery();
+            query.setTransaction(1);
+            query.setDevice(2);
+            query.readHoldingRegisters(3,4);
+            expect(query.getTransaction()).to.equal(1);
+            expect(query.getDevice()).to.equal(2);
+            expect(query.getBuffer()).to.deep.equal(new Buffer([0,1,0,0,0,6,2,3,0,3,0,4]));
+            query.setTransaction(10);
+            query.setDevice(20);
+            expect(query.getTransaction()).to.equal(10);
+            expect(query.getDevice()).to.equal(20);
+            expect(query.getBuffer()).to.deep.equal(new Buffer([0,10,0,0,0,6,20,3,0,3,0,4]));
+        });
+    });
 });
