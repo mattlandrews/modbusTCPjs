@@ -1,4 +1,4 @@
-const modbusMaster = require("./dist/modbusMaster.js");
+const { modbusMaster, modbusQuery } = require("./dist/modbusTCPjs.js");
 const fs = require("fs");
 const {waterfall} = require("async");
 const chalk = require("chalk");
@@ -66,10 +66,16 @@ master.on("error", handleError);
 // Listen for modbus connections on specified ip/port
 master.connect(_ip, _port, 500);
 
-let query = new master.modbusQuery(_device, _type, _register, _length, null);
+let query = new modbusQuery();
+query.setDevice(_device);
+switch (_type) {
+    case "readHoldingRegisters":
+        query.readHoldingRegisters(_register, _length);
+        break;
+}
 
 function handleConnect () {
-    writeToConsole(chalk.green("[ Connected to slave ]\n"));
+    writeToConsole(chalk.green("[ Connected to slave ]"));
     master.sendQuery(query);
 }
 
@@ -85,7 +91,7 @@ function handleReply (err, data, reply) {
 }  
 
 function handleDisconnect () {
-    writeToConsole(chalk.red("[ Master disconnected ]\n"));
+    writeToConsole(chalk.red("[ Master disconnected ]"));
 }
 
 function handleError (err) {
