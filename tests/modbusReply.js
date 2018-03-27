@@ -85,5 +85,20 @@ describe("modbusReply", function () {
             expect(testObj.data).to.deep.equal([100,101,102,103,104,105]);
         });
     });
-
+    describe("#set functions also alters buffer when reply is fully defined", function () {
+        it("setTransaction() & setDevice()", function () {
+            let reply = new modbusReply();
+            reply.setTransaction(1);
+            reply.setDevice(2);
+            reply.readHoldingRegisters([1]);
+            expect(reply.getTransaction()).to.equal(1);
+            expect(reply.getDevice()).to.equal(2);
+            expect(reply.getBuffer()).to.deep.equal(new Buffer([0,1,0,0,0,5,2,3,2,0,1]));
+            reply.setTransaction(10);
+            reply.setDevice(20);
+            expect(reply.getTransaction()).to.equal(10);
+            expect(reply.getDevice()).to.equal(20);
+            expect(reply.getBuffer()).to.deep.equal(new Buffer([0,10,0,0,0,5,20,3,2,0,1]));
+        });
+    });
 });

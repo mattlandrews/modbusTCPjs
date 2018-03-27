@@ -13,12 +13,18 @@ module.exports = function modbusReply() {
 
     this.getTransaction = function () { return _transaction; };
     this.setTransaction = function (transaction) {
-        if (typeof transaction === "number") { _transaction = range(transaction, 0, 65535); }
+        if (typeof transaction === "number") {
+            _transaction = range(transaction, 0, 65535);
+            if ((_buffer != null) && (_buffer.length >= 2)) { _buffer.writeUInt16BE(_transaction, 0); }
+        }
     }
 
     this.getDevice = function () { return _device; };
     this.setDevice = function (device) {
-        if (typeof device === "number") { _device = range(device, 0, 255); }
+        if (typeof device === "number") {
+            _device = range(device, 0, 255);
+            if ((_buffer != null) && (_buffer.length >= 7)) { _buffer.writeUInt8(_device, 6); }
+        }
     }
 
     this.getFunction = function () { return _func; };

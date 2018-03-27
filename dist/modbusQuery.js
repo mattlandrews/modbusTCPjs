@@ -21,8 +21,10 @@ module.exports = function modbusQuery() {
 
     this.getDevice = function () { return _device; };
     this.setDevice = function (device) {
-        if (typeof device === "number") { _device = range(device, 0, 255); }
-        if ((_buffer != null) && (_buffer.length >= 7)) { _buffer.writeUInt8(_device, 6); }
+        if (typeof device === "number") {
+            _device = range(device, 0, 255);
+            if ((_buffer != null) && (_buffer.length >= 7)) { _buffer.writeUInt8(_device, 6); }
+        }
     }
 
     this.getFunction = function () { return _func; };
