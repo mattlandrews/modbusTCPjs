@@ -1,5 +1,6 @@
-const modbusQuery = require("./modbusQuery.js");
-const modbusReply = require("./modbusReply.js");
+const modbusFrame = require("./modbusFrame.js");
+const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
+const readHoldingRegistersReply = require("./readHoldingRegistersReply.js");
 
 module.exports = function modbusMaster() {
 
@@ -79,17 +80,21 @@ module.exports = function modbusMaster() {
 
         function socketData(buffer) {
             status = 1;
-            let reply = new modbusReply();
-            reply.setBuffer(buffer);
+            let reply = new modbusFrame();
+            reply.mapFromBuffer(buffer);
             if (outstandingQuery != null) {
                 let query = outstandingQuery;
                 outstandingQuery = null;
+                if (reply.getFunction() == 3) {
+                    reply = new readHoldingRegistersReply();
+                    reply.mapFromBuffer(buffer);
+                    eventHandlers.reply.forEach(function (f) { f(null, reply.getData(), reply); });
+                }
                 if (reply.exception != null) {
                     exceptionString = knownExceptions[reply.exception];
                     if (exceptionString == null) { exceptionString = "Unknown Exception"; }
                     eventHandlers.reply.forEach(function (f) { f(new Error(exceptionString)); });
                 }
-                else { eventHandlers.reply.forEach(function (f) { f(null, reply.getData(), reply); }); }
             }
         }
 

@@ -1,4 +1,4 @@
-const { modbusMaster, modbusSlave, modbusQuery } = require("../dist/modbusTCPjs.js");
+const { modbusMaster, modbusSlave, readHoldingRegistersQuery, readHoldingRegistersReply } = require("../src/modbusTCPjs.js");
 const expect = require("chai").expect;
 
 var master;
@@ -40,9 +40,10 @@ describe("modbusSlave", function () {
             expect(slave.isConnected).to.equal(true);
             done();
         });
-        let query = new modbusQuery();
+        let query = new readHoldingRegistersQuery();
         query.setDevice(1);
-        query.readHoldingRegisters(0,1);
+        query.setRegister(0);
+        query.setRegisterCount(1);
         master.sendQuery(query);
     });
 
@@ -52,9 +53,10 @@ describe("modbusSlave", function () {
             expect(slave.isConnected).to.equal(true);
             done();
         });
-        let query = new modbusQuery();
+        let query = new readHoldingRegistersQuery();
         query.setDevice(1);
-        query.readHoldingRegisters(0,1);
+        query.setRegister(0);
+        query.setRegisterCount(1);
         master.sendQuery(query);
     });
 

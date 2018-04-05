@@ -1,4 +1,4 @@
-const { modbusSlave } = require("./dist/modbusTCPjs.js");
+const { modbusSlave } = require("./src/modbusTCPjs.js");
 
 let slave = new modbusSlave();
 

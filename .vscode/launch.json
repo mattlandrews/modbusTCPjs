@@ -58,7 +58,7 @@
             "type": "node",
             "request": "launch",
             "name": "Test Problem",
-            "program": "${workspaceFolder}/test.js"
+            "program": "${workspaceFolder}/dist/modbusQuery.js"
         }
     ]
 }

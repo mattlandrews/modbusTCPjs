@@ -1,30 +1,26 @@
-const { modbusMaster, modbusQuery } = require("./dist/modbusTCPjs.js");
+const { modbusMaster, readHoldingRegistersQuery } = require("./src/modbusTCPjs.js");
 
 let master = new modbusMaster();
 
 // Setup connection event handler
 
-master.on("connect", function () {
-
-    // create a new query
-    let query = new modbusQuery();
+function sendQuery () {
+    let query = new readHoldingRegistersQuery();
     query.setDevice(1);
-    query.readHoldingRegisters(0,1);
+    query.setRegister(0);
+    query.setRegisterCount(1);
     master.sendQuery(query);
-});
+}
 
-master.on("reply", function (err, reply) {
+master.on("connect", sendQuery);
+
+master.on("reply", function (err, data, reply) {
     if (err) {
         // Write error message to console
         console.error(err);
     }
     else {
-        let query = new modbusQuery();
-        query.setDevice(1);
-        query.readHoldingRegisters(0,1);
-        setTimeout(function () {
-            master.sendQuery(query)
-        }, 1000);
+        setTimeout(sendQuery, 10);
     }
 });
 

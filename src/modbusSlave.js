@@ -1,5 +1,6 @@
-const modbusQuery = require("./modbusQuery.js");
-const modbusReply = require("./modbusReply.js");
+const modbusFrame = require("./modbusFrame.js");
+const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
+const readHoldingRegistersReply = require("./readHoldingRegistersReply.js");
 
 module.exports = function modbusSlave() {
 
@@ -85,21 +86,23 @@ module.exports = function modbusSlave() {
 
         function socketData(socket, buffer) {
             status = 1;
-            let query = new modbusQuery();
-            query.setBuffer(buffer);
-            eventHandlers.query.forEach(function (f) { f(query); });
-            let reply = new modbusReply();
-            reply.setTransaction(query.getTransaction());
-            reply.setDevice(query.getDevice());
+            let query = new modbusFrame();
+            query.mapFromBuffer(buffer);
             if (query.getFunction() == 3) {
+                query = new readHoldingRegistersQuery();
+                query.mapFromBuffer(buffer);
+                eventHandlers.query.forEach(function (f) { f(query); });
+                let reply = new readHoldingRegistersReply();
+                reply.setTransaction(query.getTransaction());
+                reply.setDevice(query.getDevice());
                 let values = []
-                for (let i = 0; i < query.getLength(); i++) {
+                for (let i = 0; i < query.getRegisterCount(); i++) {
                     values.push(this.getHoldingRegisterValue(query.getRegister() + i));
                 }
-                reply.readHoldingRegisters(values);
+                reply.setData(values);
                 setTimeout(function () {
                     if (this.isConnected) {
-                        eventHandlers.reply.forEach(function (f) { f(reply); });
+                        eventHandlers.reply.forEach(function (f) { f(null, reply.getData(), reply); });
                         socket.write(reply.getBuffer());
                     }
                 }.bind(this), delay);

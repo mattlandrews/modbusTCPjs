@@ -1,6 +1,5 @@
-const { modbusMaster, modbusSlave, modbusQuery } = require("../dist/modbusTCPjs.js");
+const { modbusMaster, modbusSlave, modbusFrame, readHoldingRegistersQuery } = require("../src/modbusTCPjs.js");
 const expect = require("chai").expect;
-const waterfall = require("async").waterfall;
 
 var master;
 var slave;
@@ -30,9 +29,10 @@ describe("modbusMaster", function () {
             expect(master.isConnected).to.equal(true);
             done();
         });
-        let query = new modbusQuery();
+        let query = new readHoldingRegistersQuery();
         query.setDevice(1);
-        query.readHoldingRegisters(0, 1);
+        query.setRegister(0);
+        query.setRegisterCount(1);
         master.sendQuery(query);
     });
 
@@ -45,14 +45,12 @@ describe("modbusMaster", function () {
     });
 
     it ("#connect() should return error when null ip supplied", function (done){
-        delete master;
         master = new modbusMaster();
         master.on("error", function(err){ expect(err).to.be.not.null; done(); });
         master.connect(null, 502, 500);
     });
 
     it ("#connect() should return error when nonsensical ip supplied", function (done){
-        delete master;
         master = new modbusMaster();
         master.on("error", function(err){ expect(err).to.be.not.null; done(); });
         master.connect("192.168.0.256", 502, 500);
@@ -60,9 +58,10 @@ describe("modbusMaster", function () {
 
     it("#sendQuery() should send a readHoldingRegisters(99:1) query", function (done) {
         master = new modbusMaster();
-        let query = new modbusQuery();
+        let query = new readHoldingRegistersQuery();
         query.setDevice(1);
-        query.readHoldingRegisters(99, 1);
+        query.setRegister(99);
+        query.setRegisterCount(1);
         master.connect("127.0.0.1", 502, 500);
         master.on("connect", function(){
             master.sendQuery(query);
