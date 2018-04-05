@@ -1,3 +1,5 @@
+"use strict";
+
 const modbusFrame = require("./modbusFrame.js");
 
 module.exports = readHoldingRegistersReply;
@@ -46,7 +48,7 @@ function readHoldingRegistersReply () {
         _dataByteCount = buffer.readUInt8(8);
         _data = [];
         let dataLength = _dataByteCount / 2;
-        for (i=0; i<dataLength; i++) {
+        for (let i=0; i<dataLength; i++) {
             if (buffer.length < (9+(i*2))) { return false; }
             _data.push(buffer.readUInt16BE(9+(i*2)));
         }

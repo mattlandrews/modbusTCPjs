@@ -1,3 +1,5 @@
+"use strict";
+
 const modbusFrame = require("./modbusFrame.js");
 const modbusSlave = require("./modbusSlave.js");
 const modbusMaster = require("./modbusMaster.js");

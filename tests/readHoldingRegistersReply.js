@@ -1,3 +1,5 @@
+"use strict";
+
 const readHoldingRegistersReply = require("../src/readHoldingRegistersReply.js");
 const expect = require("chai").expect;
 

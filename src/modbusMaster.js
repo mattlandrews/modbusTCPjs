@@ -1,3 +1,5 @@
+"use strict";
+
 const modbusFrame = require("./modbusFrame.js");
 const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
 const readHoldingRegistersReply = require("./readHoldingRegistersReply.js");

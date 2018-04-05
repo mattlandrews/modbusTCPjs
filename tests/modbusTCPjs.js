@@ -1,3 +1,5 @@
+"use strict";
+
 const modbusTCPjs = require("../src/modbusTCPjs.js");
 const expect = require("chai").expect;
 

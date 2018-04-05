@@ -1,3 +1,5 @@
+"use strict";
+
 const modbusFrame = require("./modbusFrame.js");
 
 module.exports = readHoldingRegistersQuery;

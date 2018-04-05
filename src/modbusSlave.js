@@ -1,3 +1,5 @@
+"use strict";
+
 const modbusFrame = require("./modbusFrame.js");
 const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
 const readHoldingRegistersReply = require("./readHoldingRegistersReply.js");
@@ -61,7 +63,6 @@ module.exports = function modbusSlave() {
 
         function socketListening() {
             this.isListening = true;
-            status = 1;
             eventHandlers.listen.forEach(function (f) { f(); });
         }
 
@@ -70,7 +71,6 @@ module.exports = function modbusSlave() {
             _socket.on("error", socketError);
             _socket.on("close", socketDisconnect.bind(this));
             this.isConnected = true;
-            status = 2;
             eventHandlers.connect.forEach(function (f) { f(); });
         }
 
@@ -80,12 +80,10 @@ module.exports = function modbusSlave() {
 
         function socketDisconnect() {
             this.isConnected = false;
-            status = 1;
             eventHandlers.disconnect.forEach(function (f) { f(); });
         }
 
         function socketData(socket, buffer) {
-            status = 1;
             let query = new modbusFrame();
             query.mapFromBuffer(buffer);
             if (query.getFunction() == 3) {
@@ -121,7 +119,6 @@ module.exports = function modbusSlave() {
 
     this.close = function () {
         this.isListening = false;
-        this.status = 0;
         socket.close();
         eventHandlers.close.forEach(function (f) { f(); });
     };

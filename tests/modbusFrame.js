@@ -1,3 +1,5 @@
+"use strict";
+
 const modbusFrame = require("../src/modbusFrame.js");
 const expect = require("chai").expect;
 
