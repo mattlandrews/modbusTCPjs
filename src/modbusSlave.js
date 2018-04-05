@@ -97,10 +97,10 @@ module.exports = function modbusSlave() {
                 for (let i = 0; i < query.getRegisterCount(); i++) {
                     values.push(this.getHoldingRegisterValue(query.getRegister() + i));
                 }
-                reply.setData(values);
+                reply.setValues(values);
                 setTimeout(function () {
                     if (this.isConnected) {
-                        eventHandlers.reply.forEach(function (f) { f(null, reply.getData(), reply); });
+                        eventHandlers.reply.forEach(function (f) { f(null, reply.getValues(), reply); });
                         socket.write(reply.getBuffer());
                     }
                 }.bind(this), delay);

@@ -90,7 +90,7 @@ module.exports = function modbusMaster() {
                 if (reply.getFunction() == 3) {
                     reply = new readHoldingRegistersReply();
                     reply.mapFromBuffer(buffer);
-                    eventHandlers.reply.forEach(function (f) { f(null, reply.getData(), reply); });
+                    eventHandlers.reply.forEach(function (f) { f(null, reply.getValues(), reply); });
                 }
                 if (reply.exception != null) {
                     exceptionString = knownExceptions[reply.exception];
