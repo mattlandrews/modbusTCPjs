@@ -3,6 +3,8 @@
 const modbusFrame = require("./modbusFrame.js");
 const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
 const readHoldingRegistersReply = require("./readHoldingRegistersReply.js");
+const writeHoldingRegisterQuery = require("./writeHoldingRegisterQuery.js");
+const writeHoldingRegisterReply = require("./writeHoldingRegisterReply.js");
 
 module.exports = function modbusSlave() {
 
@@ -86,7 +88,8 @@ module.exports = function modbusSlave() {
         function socketData(socket, buffer) {
             let query = new modbusFrame();
             query.mapFromBuffer(buffer);
-            if (query.getFunction() == 3) {
+            let func = query.getFunction();
+            if (func == 3) {
                 query = new readHoldingRegistersQuery();
                 query.mapFromBuffer(buffer);
                 eventHandlers.query.forEach(function (f) { f(query); });
@@ -101,6 +104,22 @@ module.exports = function modbusSlave() {
                 setTimeout(function () {
                     if (this.isConnected) {
                         eventHandlers.reply.forEach(function (f) { f(null, reply.getValues(), reply); });
+                        socket.write(reply.getBuffer());
+                    }
+                }.bind(this), delay);
+            }
+            else if (func == 6) {
+                query = new writeHoldingRegisterQuery();
+                query.mapFromBuffer(buffer);
+                eventHandlers.query.forEach(function (f) { f(query); });
+                let reply = new writeHoldingRegisterReply();
+                reply.setTransaction(query.getTransaction());
+                reply.setDevice(query.getDevice());
+                reply.setRegister(query.getRegister());
+                reply.setValue(query.getValue());
+                setTimeout(function () {
+                    if (this.isConnected) {
+                        eventHandlers.reply.forEach(function (f) { f(null, reply.getValue(), reply); });
                         socket.write(reply.getBuffer());
                     }
                 }.bind(this), delay);
