@@ -1,4 +1,4 @@
-const modbusSlave = require("./dist/modbusSlave.js");
+const modbusSlave = require("./src/modbusSlave.js");
 const fs = require("fs");
 const {waterfall} = require("async");
 const chalk = require("chalk");

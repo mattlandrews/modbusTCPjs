@@ -5,11 +5,11 @@ const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
 const readHoldingRegistersReply = require("./readHoldingRegistersReply.js");
 const writeHoldingRegisterQuery = require("./writeHoldingRegisterQuery.js");
 const writeHoldingRegisterReply = require("./writeHoldingRegisterReply.js");
+let inet = require("./inet.js");
 
 module.exports = function modbusSlave() {
 
-    let net = require("net");
-    let socket = new net.Server();
+    let socket = new inet.Server();
     let eventHandlers = {
         "listen": [],
         "connect": [],
