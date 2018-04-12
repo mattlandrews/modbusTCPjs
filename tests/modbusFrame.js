@@ -101,7 +101,7 @@ describe("modbusFrame", function () {
             expect(query.getDevice()).to.equal(4);
             expect(query.getFunction()).to.equal(5);
         });
-        it("mapFromBuffer() with empty buffer", function () {
+        it("mapFromBuffer() with empty buffer (undefined)", function () {
             query = new modbusFrame();
             expect(query.mapFromBuffer()).to.equal(false);
             expect(query.getTransaction()).to.equal(0);
@@ -109,7 +109,7 @@ describe("modbusFrame", function () {
             expect(query.getDevice()).to.equal(1);
             expect(query.getFunction()).to.equal(1);
         });
-        it("mapFromBuffer() with empty buffer", function () {
+        it("mapFromBuffer() with empty buffer (empty array)", function () {
             query = new modbusFrame();
             expect(query.mapFromBuffer(new Buffer([]))).to.equal(false);
             expect(query.getTransaction()).to.equal(0);
@@ -134,4 +134,40 @@ describe("modbusFrame", function () {
             expect(query.getFunction()).to.equal(3);
         });
     });
+    describe("getMap()", function () {
+        it("getMap() good buffer", function () {
+            let query = new modbusFrame();
+            expect(query.mapFromBuffer(new Buffer([0,4,0,0,0,2,5,1]))).to.equal(true);
+            expect(query.getMap).to.be.a("function");
+            expect(query.getMap()).to.deep.equal({
+                "0": { "name": "transaction", "value": 4, "length": 2 },
+                "2": { "name": "protocol", "value": 0, "length": 2 },
+                "4": { "name": "byteLength", "value": 2, "length": 2 },
+                "6": { "name": "device", "value": 5, "length": 1 },
+                "7": { "name": "function", "value": 1, "length": 1 }
+            });
+        });
+        it("getMap() short buffer", function () {
+            let query = new modbusFrame();
+            expect(query.mapFromBuffer(new Buffer([0,5,0,0,0]))).to.equal(false);
+            expect(query.getMap).to.be.a("function");
+            expect(query.getMap()).to.deep.equal({
+                "0": { "name": "transaction", "value": 5, "length": 2 },
+                "2": { "name": "protocol", "value": 0, "length": 2 }
+            });
+        });
+        it("getMap() long buffer", function () {
+            let query = new modbusFrame();
+            expect(query.mapFromBuffer(new Buffer([0,6,0,0,0,2,10,11,12,13]))).to.equal(true);
+            expect(query.getMap).to.be.a("function");
+            expect(query.getMap()).to.deep.equal({
+                "0": { "name": "transaction", "value": 6, "length": 2 },
+                "2": { "name": "protocol", "value": 0, "length": 2 },
+                "4": { "name": "byteLength", "value": 2, "length": 2 },
+                "6": { "name": "device", "value": 10, "length": 1 },
+                "7": { "name": "function", "value": 11, "length": 1 }
+            });
+        });
+    });
+
 });

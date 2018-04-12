@@ -92,4 +92,55 @@ describe("readHoldingRegistersQuery", function () {
             expect(query.getBuffer()).to.deep.equal(new Buffer([11,184,0,0,0,6,150,4,0,0,0,1]));
         });
     });
+    describe("getMap()", function () {
+        it("getMap() good buffer", function () {
+            let query = new readHoldingRegistersQuery();
+            expect(query.mapFromBuffer(new Buffer([0,20,0,0,0,6,8,3,1,0,0,1]))).to.equal(true);
+            expect(query.getMap).to.be.a("function");
+            expect(query.getMap()).to.deep.equal({
+                "0": { "name": "transaction", "value": 20, "length": 2 },
+                "2": { "name": "protocol", "value": 0, "length": 2 },
+                "4": { "name": "byteLength", "value": 6, "length": 2 },
+                "6": { "name": "device", "value": 8, "length": 1 },
+                "7": { "name": "function", "value": 3, "length": 1 },
+                "8": { "name": "register", "value": 256, "length": 2 },
+                "10": { "name": "registerCount", "value": 1, "length": 2 }
+            });
+        });
+        it("getMap() short buffer", function () {
+            let query = new readHoldingRegistersQuery();
+            expect(query.mapFromBuffer(new Buffer([0,21,0,0,0,6,9,3,2]))).to.equal(false);
+            expect(query.getMap).to.be.a("function");
+            expect(query.getMap()).to.deep.equal({
+                "0": { "name": "transaction", "value": 21, "length": 2 },
+                "2": { "name": "protocol", "value": 0, "length": 2 },
+                "4": { "name": "byteLength", "value": 6, "length": 2 },
+                "6": { "name": "device", "value": 9, "length": 1 },
+                "7": { "name": "function", "value": 3, "length": 1 },
+                "8": { "name": "unknown", "value": 2, "length": 1 }
+            });
+        });
+        it("getMap() really short buffer", function () {
+            let query = new readHoldingRegistersQuery();
+            expect(query.mapFromBuffer(new Buffer([0,21,0,0,0]))).to.equal(false);
+            expect(query.getMap).to.be.a("function");
+            expect(query.getMap()).to.deep.equal({
+                "0": { "name": "transaction", "value": 21, "length": 2 },
+                "2": { "name": "protocol", "value": 0, "length": 2 },
+                "4": { "name": "unknown", "value": 0, "length": 1 }
+            });
+        });
+        it("getMap() long buffer", function () {
+            let query = new readHoldingRegistersQuery();
+            expect(query.mapFromBuffer(new Buffer([0,6,0,0,0,2,10,11,12,13]))).to.equal(true);
+            expect(query.getMap).to.be.a("function");
+            expect(query.getMap()).to.deep.equal({
+                "0": { "name": "transaction", "value": 6, "length": 2 },
+                "2": { "name": "protocol", "value": 0, "length": 2 },
+                "4": { "name": "byteLength", "value": 2, "length": 2 },
+                "6": { "name": "device", "value": 10, "length": 1 },
+                "7": { "name": "function", "value": 11, "length": 1 }
+            });
+        });
+    });
 });
