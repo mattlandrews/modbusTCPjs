@@ -1,4 +1,4 @@
-const { modbusMaster, modbusQuery } = require("./dist/modbusTCPjs.js");
+const { modbusMaster, readHoldingRegistersQuery } = require("./src/modbusTCPjs.js");
 const fs = require("fs");
 const {waterfall} = require("async");
 const chalk = require("chalk");
@@ -66,11 +66,12 @@ master.on("error", handleError);
 // Listen for modbus connections on specified ip/port
 master.connect(_ip, _port, 500);
 
-let query = new modbusQuery();
+let query = new readHoldingRegistersQuery();
 query.setDevice(_device);
 switch (_type) {
     case "readHoldingRegisters":
-        query.readHoldingRegisters(_register, _length);
+        query.setRegister(_register);
+        query.setRegisterCount(_length);
         break;
 }
 
@@ -102,7 +103,41 @@ function writeToConsole (query, tab) {
     if (typeof query === "string") {
         process.stdout.write(query + "\n");
     }
-    else if ((query != null) && (query.debugString != null)) {
-        process.stdout.write(((tab) ? "\t\t" : "") + query.debugString + "\n");
+    else if ((query != null) && (query.getMap != null)) {
+        let maps = query.getMap();
+        let buffer = query.getBuffer();
+        let i = 0;
+        let str = "";
+        while (i < buffer.length) {
+            if (maps[i] != null) {
+                switch (maps[i].name) {
+                    case "transaction":
+                        str += chalk.hex("#00FF00")("[" + maps[i].value + "]");
+                        break;
+                    case "protocol":
+                    case "byteLength":
+                        str += chalk.hex("#00AA00")("[" + maps[i].value + "]");
+                        break;
+                    case "device":
+                        str += chalk.hex("#FF8800")("[" + maps[i].value + "]");
+                        break;
+                    case "function":
+                        str += chalk.hex("#0000EE")("[" + maps[i].value + "]");
+                        break;
+                    case "register":
+                        str += chalk.hex("#CD00CD")("[" + maps[i].value + "]");
+                        break;
+                    case "registerCount":
+                        str += chalk.hex("#5F5F00")("[" + maps[i].value + "]");
+                        break;
+                }
+                i += maps[i].length;
+            }
+            else {
+                str += chalk.hex("#7F7F7F")("[" + buffer.readUInt8(i) + "]");
+                i++;
+            }
+        }
+        process.stdout.write(((tab) ? "\t\t" : "") + str + "\n");
     }
 }
