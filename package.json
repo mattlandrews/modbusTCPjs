@@ -8,7 +8,7 @@
     "testQuery": "mocha ./tests/modbusQuery.js",
     "testReply": "mocha ./tests/modbusReply.js",
     "test": "mocha ./tests",
-    "testWatch": "mocha --watch ./tests/readHoldingRegistersQuery.js"
+    "testWatch": "mocha --watch ./tests/readHoldingRegistersReply.js"
   },
   "author": "Matt Andrews",
   "license": "UNLICENSED",

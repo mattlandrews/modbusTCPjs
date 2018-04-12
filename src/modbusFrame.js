@@ -1,13 +1,5 @@
 "use strict";
 
-const _transaction = Symbol("transaction");
-const _protocol = Symbol("protocol");
-const _byteLength = Symbol("byteLength");
-const _device = Symbol("device");
-const _function = Symbol("function");
-const _buffer = Symbol("buffer");
-const _map = Symbol("map");
-
 module.exports = class modbusFrame {
 
     constructor () {
@@ -38,6 +30,15 @@ module.exports = class modbusFrame {
     }
 
     get byteLength () { return this._byteLength; }
+    set byteLength (byteLength) {
+        if ((typeof byteLength === "number") && (byteLength >= 0) && (byteLength <= 65535) && (Number.isInteger(byteLength))) {
+            this._byteLength = byteLength;
+            this._buffer.writeUInt16BE(this._byteLength, 4);
+        }
+        else {
+            throw new Error("Invalid Device ID");
+        }
+    }
 
     get device () { return this._device; }
     set device (device) {
@@ -76,6 +77,15 @@ module.exports = class modbusFrame {
         if (buffer.length < 8) { return false; }
         this._function = buffer.readUInt8(7);
         return true;
-    };
+    }
+
+    resizeBuffer (size) {
+        let testBuffer = Buffer.allocUnsafe(size);
+        testBuffer.fill(this._buffer,0,8);
+        this._buffer = testBuffer;
+        this._byteLength = size - 6;
+        this._buffer[5] = this._byteLength;
+        return this._buffer;
+    }
 
 }
