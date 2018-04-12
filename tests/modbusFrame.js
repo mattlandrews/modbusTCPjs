@@ -8,87 +8,64 @@ describe("modbusFrame", function () {
         let query = new modbusFrame();
         expect(query).to.be.an("object");
     });
-    it ("getBuffer()", function () {
+    it ("buffer", function () {
         let query = new modbusFrame();
-        expect(query.getBuffer).to.be.a("function");
-        expect(query.getBuffer()).to.deep.equal(new Buffer([0,0,0,0,0,2,1,1]));
+        expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,2,1,1]));
     });
-    it("getTransaction()", function () {
+    it("transaction", function () {
         let query = new modbusFrame();
-        expect(query.getTransaction).to.be.a("function");
-        expect(query.getTransaction()).to.equal(0);
+        expect(query.transaction).to.equal(0);
+        query.transaction = 1;
+        expect(query.transaction).to.equal(1);
+        expect(query.buffer).to.deep.equal(new Buffer([0,1,0,0,0,2,1,1]));
+        query.transaction = 65535;
+        expect(query.transaction).to.equal(65535);
+        expect(query.buffer).to.deep.equal(new Buffer([255,255,0,0,0,2,1,1]));
+        expect(function () { query.transaction = -1; }).to.throw("Invalid Transaction ID");
+        expect(function () { query.transaction = 65536; }).to.throw("Invalid Transaction ID");
+        expect(function () { query.transaction = 1.1; }).to.throw("Invalid Transaction ID");
+        expect(function () { query.transaction = "0"; }).to.throw("Invalid Transaction ID");
+        expect(function () { query.transaction = true; }).to.throw("Invalid Transaction ID");
+        expect(function () { query.transaction = null; }).to.throw("Invalid Transaction ID");
+        expect(query.buffer).to.deep.equal(new Buffer([255,255,0,0,0,2,1,1]));
     });
-    it("setTransaction()", function () {
+    it("byteLength", function () {
         let query = new modbusFrame();
-        expect(query.setTransaction).to.be.a("function");
-        expect(query.setTransaction(1)).to.equal(undefined);
-        expect(query.getTransaction()).to.equal(1);
-        expect(query.getBuffer()).to.deep.equal(new Buffer([0,1,0,0,0,2,1,1]));
-        expect(query.setTransaction(65535)).to.equal(undefined);
-        expect(query.getTransaction()).to.equal(65535);
-        expect(query.getBuffer()).to.deep.equal(new Buffer([255,255,0,0,0,2,1,1]));
-        expect(query.setTransaction.bind(query, -1)).to.throw("Invalid Transaction ID");
-        expect(query.setTransaction.bind(query, 65536)).to.throw("Invalid Transaction ID");
-        expect(query.setTransaction.bind(query, 1.1)).to.throw("Invalid Transaction ID");
-        expect(query.setTransaction.bind(query, "0")).to.throw("Invalid Transaction ID");
-        expect(query.setTransaction.bind(query, true)).to.throw("Invalid Transaction ID");
-        expect(query.setTransaction.bind(query, null)).to.throw("Invalid Transaction ID");
-        expect(query.getBuffer()).to.deep.equal(new Buffer([255,255,0,0,0,2,1,1]));
+        expect(query.byteLength).to.equal(2);
     });
-    it("getByteLength()", function () {
+    it("device", function () {
         let query = new modbusFrame();
-        expect(query.getByteLength).to.be.a("function");
-        expect(query.getByteLength()).to.equal(2);
+        expect(query.device).to.equal(1);
+        query.device = 0;
+        expect(query.device).to.equal(0);
+        expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,2,0,1]));
+        query.device = 255;
+        expect(query.device).to.equal(255);
+        expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,2,255,1]));
+        expect(function () { query.device = -1; }).to.throw("Invalid Device ID");
+        expect(function () { query.device = 256; }).to.throw("Invalid Device ID");
+        expect(function () { query.device = 1.1; }).to.throw("Invalid Device ID");
+        expect(function () { query.device = "0"; }).to.throw("Invalid Device ID");
+        expect(function () { query.device = true; }).to.throw("Invalid Device ID");
+        expect(function () { query.device = null; }).to.throw("Invalid Device ID");
+        expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,2,255,1]));
     });
-    it("getDevice()", function () {
+    it("function", function () {
         let query = new modbusFrame();
-        expect(query.getDevice).to.be.a("function");
-        expect(query.getDevice()).to.equal(1);
-    });
-    it("setDevice()", function () {
-        let query = new modbusFrame();
-        expect(query.setDevice).to.be.a("function");
-        expect(query.setDevice(0)).to.equal(undefined);
-        expect(query.getDevice()).to.equal(0);
-        expect(query.getBuffer()).to.deep.equal(new Buffer([0,0,0,0,0,2,0,1]));
-        expect(query.setDevice(255)).to.equal(undefined);
-        expect(query.getDevice()).to.equal(255);
-        expect(query.getBuffer()).to.deep.equal(new Buffer([0,0,0,0,0,2,255,1]));
-        expect(query.setDevice.bind(query, -1)).to.throw("Invalid Device ID");
-        expect(query.setDevice.bind(query, 256)).to.throw("Invalid Device ID");
-        expect(query.setDevice.bind(query, 1.1)).to.throw("Invalid Device ID");
-        expect(query.setDevice.bind(query, "0")).to.throw("Invalid Device ID");
-        expect(query.setDevice.bind(query, true)).to.throw("Invalid Device ID");
-        expect(query.setDevice.bind(query, null)).to.throw("Invalid Device ID");
-        expect(query.getBuffer()).to.deep.equal(new Buffer([0,0,0,0,0,2,255,1]));
-    });
-    it("getFunction()", function () {
-        let query = new modbusFrame();
-        expect(query.getFunction).to.be.a("function");
-        expect(query.getFunction()).to.equal(1);
-    });
-    it("setFunction()", function () {
-        let query = new modbusFrame();
-        expect(query.setFunction).to.be.a("function");
-        expect(query.setFunction(0)).to.equal(undefined);
-        expect(query.getFunction()).to.equal(0);
-        expect(query.getBuffer()).to.deep.equal(new Buffer([0,0,0,0,0,2,1,0]));
-        expect(query.setFunction(255)).to.equal(undefined);
-        expect(query.getFunction()).to.equal(255);
-        expect(query.getBuffer()).to.deep.equal(new Buffer([0,0,0,0,0,2,1,255]));
-        expect(query.setFunction.bind(query, -1)).to.throw("Invalid Function ID");
-        expect(query.setFunction.bind(query, 256)).to.throw("Invalid Function ID");
-        expect(query.setFunction.bind(query, 1.1)).to.throw("Invalid Function ID");
-        expect(query.setFunction.bind(query, "0")).to.throw("Invalid Function ID");
-        expect(query.setFunction.bind(query, true)).to.throw("Invalid Function ID");
-        expect(query.setFunction.bind(query, null)).to.throw("Invalid Function ID");
-        expect(query.getBuffer()).to.deep.equal(new Buffer([0,0,0,0,0,2,1,255]));
-    });
-    it("resizeBuffer", function () {
-        let query = new modbusFrame();
-        let test = query.resizeBuffer(14);
-        expect(test.length).to.equal(14);
-        expect(test).to.equal(query.getBuffer());
+        expect(query.function).to.equal(1);
+        query.function = 0;
+        expect(query.function).to.equal(0);
+        expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,2,1,0]));
+        query.function = 255;
+        expect(query.function).to.equal(255);
+        expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,2,1,255]));
+        expect(function () { query.function = -1; }).to.throw("Invalid Function ID");
+        expect(function () { query.function = 256; }).to.throw("Invalid Function ID");
+        expect(function () { query.function = 1.1; }).to.throw("Invalid Function ID");
+        expect(function () { query.function = "0"; }).to.throw("Invalid Function ID");
+        expect(function () { query.function = true; }).to.throw("Invalid Function ID");
+        expect(function () { query.function = null; }).to.throw("Invalid Function ID");
+        expect(query.buffer).to.deep.equal(new Buffer([0,0,0,0,0,2,1,255]));
     });
     describe("mapFromBuffer()", function () {
         let query = new modbusFrame();
@@ -96,77 +73,42 @@ describe("modbusFrame", function () {
         it("mapFromBuffer() with good buffer", function () {
             query = new modbusFrame();
             expect(query.mapFromBuffer(new Buffer([0,3,0,0,0,2,4,5]))).to.equal(true);
-            expect(query.getTransaction()).to.equal(3);
-            expect(query.getByteLength()).to.equal(2);
-            expect(query.getDevice()).to.equal(4);
-            expect(query.getFunction()).to.equal(5);
+            expect(query.transaction).to.equal(3);
+            expect(query.byteLength).to.equal(2);
+            expect(query.device).to.equal(4);
+            expect(query.function).to.equal(5);
         });
         it("mapFromBuffer() with empty buffer (undefined)", function () {
             query = new modbusFrame();
             expect(query.mapFromBuffer()).to.equal(false);
-            expect(query.getTransaction()).to.equal(0);
-            expect(query.getByteLength()).to.equal(2);
-            expect(query.getDevice()).to.equal(1);
-            expect(query.getFunction()).to.equal(1);
+            expect(query.transaction).to.equal(0);
+            expect(query.byteLength).to.equal(2);
+            expect(query.device).to.equal(1);
+            expect(query.function).to.equal(1);
         });
         it("mapFromBuffer() with empty buffer (empty array)", function () {
             query = new modbusFrame();
             expect(query.mapFromBuffer(new Buffer([]))).to.equal(false);
-            expect(query.getTransaction()).to.equal(0);
-            expect(query.getByteLength()).to.equal(2);
-            expect(query.getDevice()).to.equal(1);
-            expect(query.getFunction()).to.equal(1);
+            expect(query.transaction).to.equal(0);
+            expect(query.byteLength).to.equal(2);
+            expect(query.device).to.equal(1);
+            expect(query.function).to.equal(1);
         });
         it("mapFromBuffer() with buffer that is too short", function () {
             query = new modbusFrame();
             expect(query.mapFromBuffer(new Buffer([0,3,0,0,0,2,4]))).to.equal(false);
-            expect(query.getTransaction()).to.equal(3);
-            expect(query.getByteLength()).to.equal(2);
-            expect(query.getDevice()).to.equal(4);
-            expect(query.getFunction()).to.equal(1);
+            expect(query.transaction).to.equal(3);
+            expect(query.byteLength).to.equal(2);
+            expect(query.device).to.equal(4);
+            expect(query.function).to.equal(1);
         });
         it("mapFromBuffer() with buffer that is too long", function () {
             query = new modbusFrame();
             expect(query.mapFromBuffer(new Buffer([0,3,0,0,0,2,4,3,0,0,0,1]))).to.equal(true);
-            expect(query.getTransaction()).to.equal(3);
-            expect(query.getByteLength()).to.equal(2);
-            expect(query.getDevice()).to.equal(4);
-            expect(query.getFunction()).to.equal(3);
-        });
-    });
-    describe("getMap()", function () {
-        it("getMap() good buffer", function () {
-            let query = new modbusFrame();
-            expect(query.mapFromBuffer(new Buffer([0,4,0,0,0,2,5,1]))).to.equal(true);
-            expect(query.getMap).to.be.a("function");
-            expect(query.getMap()).to.deep.equal({
-                "0": { "name": "transaction", "value": 4, "length": 2 },
-                "2": { "name": "protocol", "value": 0, "length": 2 },
-                "4": { "name": "byteLength", "value": 2, "length": 2 },
-                "6": { "name": "device", "value": 5, "length": 1 },
-                "7": { "name": "function", "value": 1, "length": 1 }
-            });
-        });
-        it("getMap() short buffer", function () {
-            let query = new modbusFrame();
-            expect(query.mapFromBuffer(new Buffer([0,5,0,0,0]))).to.equal(false);
-            expect(query.getMap).to.be.a("function");
-            expect(query.getMap()).to.deep.equal({
-                "0": { "name": "transaction", "value": 5, "length": 2 },
-                "2": { "name": "protocol", "value": 0, "length": 2 }
-            });
-        });
-        it("getMap() long buffer", function () {
-            let query = new modbusFrame();
-            expect(query.mapFromBuffer(new Buffer([0,6,0,0,0,2,10,11,12,13]))).to.equal(true);
-            expect(query.getMap).to.be.a("function");
-            expect(query.getMap()).to.deep.equal({
-                "0": { "name": "transaction", "value": 6, "length": 2 },
-                "2": { "name": "protocol", "value": 0, "length": 2 },
-                "4": { "name": "byteLength", "value": 2, "length": 2 },
-                "6": { "name": "device", "value": 10, "length": 1 },
-                "7": { "name": "function", "value": 11, "length": 1 }
-            });
+            expect(query.transaction).to.equal(3);
+            expect(query.byteLength).to.equal(2);
+            expect(query.device).to.equal(4);
+            expect(query.function).to.equal(3);
         });
     });
 
