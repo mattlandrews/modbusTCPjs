@@ -21,8 +21,8 @@ describe("ReadHoldingRegisters()", function () {
         expect(rhr.getRegister()).to.equal(0);
     })
     it ("setRegister()", function () {
-        rhr.setRegister(1);
-        expect(rhr.getRegister()).to.equal(1);
-        expect(rhr._buffer.readUInt16BE(7)).to.equal(1);
+        rhr.setRegister(65000);
+        expect(rhr.getRegister()).to.equal(65000);
+        expect(rhr._buffer.readUInt16BE(7)).to.equal(65000);
     })
 });
