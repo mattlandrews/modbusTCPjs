@@ -7,58 +7,24 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Modbus Slave App",
-            "program": "${workspaceFolder}/modbusSlave_app.js",
-            "console": "integratedTerminal",
-            "args": [
-                "--ip",
-                "127.0.0.1",
-                "--port",
-                "502",
-                "--data",
-                "./slaveData.json"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Modbus Master App",
-            "program": "${workspaceFolder}/modbusMaster_app.js",
-            "console": "integratedTerminal",
+            "name": "Example App",
+            "program": "${workspaceRoot}/example.js",
             "args": []
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Master Example",
-            "program": "${workspaceFolder}/example_master.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Slave Example",
-            "program": "${workspaceFolder}/example_slave.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Mocha Tests",
-            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
                 "-u",
                 "tdd",
                 "--timeout",
                 "999999",
                 "--colors",
-                "${workspaceFolder}/tests/readHoldingRegistersReply.js"
+                "${workspaceRoot}/tests/readHoldingRegistersReply.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Test Problem",
-            "program": "${workspaceFolder}/dist/modbusQuery.js"
         }
     ]
 }
