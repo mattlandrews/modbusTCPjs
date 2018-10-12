@@ -11,14 +11,14 @@ describe("MBAP()", function () {
         expect(mbap.getTransaction).to.be.a("function");
         expect(mbap.setTransaction).to.be.a("function");
     });
-    it ("getTransaction", function () {
+    it ("getTransaction()", function () {
         expect(mbap.getTransaction()).to.equal(0);
     });
-    it ("setTransaction", function () {
+    it ("setTransaction()", function () {
         mbap.setTransaction(1);
         expect(mbap.getTransaction()).to.equal(1);
     });
-    it ("getBuffer", function () {
+    it ("getBuffer()", function () {
         expect(mbap.getBuffer()).to.deep.equal(new Buffer([0,1,0,0,0,0]));
     });
 });
