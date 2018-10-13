@@ -9,10 +9,12 @@ module.exports = class ReadHoldingRegisters extends MBAP {
         this._function = 3;
         this._register = 0;
         this._length = 1;
-        this._byteLength = 5;
-        this._buffer.writeUInt8(this._function, 6);
-        this._buffer.writeUInt16BE(this._register, 7);
-        this._buffer.writeUInt16BE(this._length, 9);
+        this._byteLength = 6;
+        this._buffer.writeUInt16BE(this._byteLength, 4);
+        this._buffer.writeUInt8(this._device, 6);
+        this._buffer.writeUInt8(this._function, 7);
+        this._buffer.writeUInt16BE(this._register, 8);
+        this._buffer.writeUInt16BE(this._length, 10);
     }
 
     getFunction () {
@@ -21,7 +23,7 @@ module.exports = class ReadHoldingRegisters extends MBAP {
 
     setRegister (register) {
         this._register = register;
-        this._buffer.writeUInt16BE(this._register, 7);
+        this._buffer.writeUInt16BE(this._register, 8);
     }
 
     getRegister () {
@@ -30,10 +32,22 @@ module.exports = class ReadHoldingRegisters extends MBAP {
 
     setLength (length) {
         this._length = length;
-        this._buffer.writeUInt16BE(this._length, 9);
+        this._buffer.writeUInt16BE(this._length, 10);
     }
 
     getLength () {
         return this._length;
+    }
+
+    parseReply (data) {
+        if (this.parseMBAP(data) == false) { return null; }
+        if (data.readUInt8(7) != this._function) { return null; }
+        let dataByteLength = data.readUInt8(8);
+        if (dataByteLength != (this._length * 2)) { return null; }
+        let d = [];
+        for (let i=0; i<dataByteLength; i+=2) {
+            d.push(data.readUInt16BE(9 + i));
+        }
+        return d;
     }
 }

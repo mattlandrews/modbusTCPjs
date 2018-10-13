@@ -22,7 +22,7 @@
                 "--timeout",
                 "999999",
                 "--colors",
-                "${workspaceRoot}/tests/readHoldingRegistersReply.js"
+                "${workspaceRoot}/tests/test_readHoldingRegisters.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         }

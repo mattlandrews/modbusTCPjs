@@ -1,16 +1,56 @@
 "use strict";
 
 const _readHoldingRegisters = require("./readHoldingRegisters.js");
+const net = require("net");
 
-module.exports = function ModbusTCP() {
+module.exports = function ModbusTCP(ip, port) {
+    
+    let socket = new net.Socket();
+    let connected = false;
+    let query = null;
+    let dataCallback = null;
+    
+    if ((typeof ip !== "string") || (ip.match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) == null)) {
+        throw new Error("ip of ${ip} is invalid.");
+    }
+    this.ip = ip;
+
+    this.port = 502;
+    if ((isNaN(port) == false) && (port > 0) && (port < 65536)) {
+        this.port = port;
+    }
+
+    socket.on("close", function () {
+        console.log("Connection closed... re-opening.");
+        socket.connect(this.port, this.ip);
+    }.bind(this));
+    socket.on("data", function (data) {
+        if (dataCallback != null) {
+            dataCallback(data);
+        }
+    });
+    socket.on("error", function (err) {
+        console.log(err);
+    });
+
+    socket.connect(this.port, this.ip);
 
     this.readHoldingRegisters = function (register, length, callback) {
-        let query = new _readHoldingRegisters();
-        if (register != null) { query.setRegister(register); }
-        if (length != null) { query.setLength(length); }
-
         return new Promise(function (resolve, reject) {
-            
+            if (query != null) {
+                reject(new Error("Query already outstanding."));
+                return;
+            }
+            query = new _readHoldingRegisters();
+            if (register != null) { query.setRegister(register); }
+            if (length != null) { query.setLength(length); }
+            dataCallback = function (data) {
+                let d = query.parseReply(data);
+                if (d != null) { resolve(d); }
+                else { reject(); }
+                query = null;
+            }
+            socket.write(query.getBuffer());
         });
     }
 
