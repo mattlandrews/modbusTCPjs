@@ -6,15 +6,13 @@ module.exports = class ReadHoldingRegisters extends MBAP {
 
     constructor () {
         super();
-        this._function = 3;
-        this._register = 0;
-        this._length = 1;
         this._byteLength = 6;
         this._buffer.writeUInt16BE(this._byteLength, 4);
-        this._buffer.writeUInt8(this._device, 6);
+        this.setDevice(1);
+        this._function = 3;
         this._buffer.writeUInt8(this._function, 7);
-        this._buffer.writeUInt16BE(this._register, 8);
-        this._buffer.writeUInt16BE(this._length, 10);
+        this.setRegister(0);
+        this.setLength(1);
     }
 
     getFunction () {
