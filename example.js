@@ -9,4 +9,11 @@ mbtcp.readHoldingRegisters(0, 3)
     })
     .then(function (data) {
         console.log(data);
+        mbtcp.writeHoldingRegisters(0, [1])
+            .catch(function (err) {
+                console.log(err);
+            })
+            .then(function (data) {
+                console.log(data);
+            });
     });

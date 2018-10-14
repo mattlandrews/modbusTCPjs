@@ -63,12 +63,8 @@ module.exports = class WriteHoldingRegisters extends MBAP {
     parseReply (data) {
         if (this.parseMBAP(data) == false) { return null; }
         if (data.readUInt8(7) != this._function) { return null; }
-        let dataByteLength = data.readUInt8(8);
-        if (dataByteLength != (this._length * 2)) { return null; }
-        let d = [];
-        for (let i=0; i<dataByteLength; i+=2) {
-            d.push(data.readUInt16BE(9 + i));
-        }
-        return d;
+        if (data.readUInt16BE(8) != this._register) { return null; }
+        if (data.readUInt16BE(10) != this._length) { return null; }
+        return [];
     }
 }

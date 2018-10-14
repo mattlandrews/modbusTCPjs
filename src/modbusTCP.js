@@ -1,6 +1,7 @@
 "use strict";
 
 const _readHoldingRegisters = require("./readHoldingRegisters.js");
+const _writeHoldingRegisters = require("./writeHoldingRegisters.js");
 const net = require("net");
 
 module.exports = function ModbusTCP(ip, port) {
@@ -48,6 +49,29 @@ module.exports = function ModbusTCP(ip, port) {
                 let d = query.parseReply(data);
                 if (d != null) { resolve(d); }
                 else { reject(); }
+                query = null;
+            }
+            socket.write(query.getBuffer());
+        });
+    }
+
+    this.writeHoldingRegisters = function (register, data, callback) {
+        return new Promise(function (resolve, reject) {
+            if (query != null) {
+                reject(new Error("Query already outstanding."));
+                return;
+            }
+            query = new _writeHoldingRegisters();
+            if (register != null) { query.setRegister(register); }
+            if (Array.isArray(data) == false) { reject(new Error("Query requires data.")); return; }
+            else { query.setData(data); }
+            dataCallback = function (data) {
+                if (query.parseReply(data) == []) {
+                    resolve();
+                }
+                else {
+                    reject();
+                }
                 query = null;
             }
             socket.write(query.getBuffer());
