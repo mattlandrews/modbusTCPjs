@@ -21,8 +21,9 @@ module.exports = function ModbusTCP(ip, port) {
         this.port = port;
     }
 
+    this.transaction = 0;
+
     socket.on("close", function () {
-        console.log("Connection closed... re-opening.");
         socket.connect(this.port, this.ip);
     }.bind(this));
     socket.on("data", function (data) {
@@ -37,18 +38,23 @@ module.exports = function ModbusTCP(ip, port) {
     socket.connect(this.port, this.ip);
 
     this.readHoldingRegisters = function (register, length, callback) {
+        let transaction = this.transaction;
+        this.transaction++;
         return new Promise(function (resolve, reject) {
             if (query != null) {
                 reject(new Error("Query already outstanding."));
                 return;
             }
             query = new _readHoldingRegisters();
+            query.setTransaction(transaction);
             if (register != null) { query.setRegister(register); }
             if (length != null) { query.setLength(length); }
             dataCallback = function (data) {
                 let d = query.parseReply(data);
                 if (d != null) { resolve(d); }
-                else { reject(); }
+                else {
+                    reject(new Error("Error"));
+                }
                 query = null;
             }
             socket.write(query.getBuffer());
@@ -56,17 +62,21 @@ module.exports = function ModbusTCP(ip, port) {
     }
 
     this.writeHoldingRegisters = function (register, data, callback) {
+        let transaction = this.transaction;
+        this.transaction++;
         return new Promise(function (resolve, reject) {
             if (query != null) {
                 reject(new Error("Query already outstanding."));
                 return;
             }
             query = new _writeHoldingRegisters();
+            query.setTransaction(transaction);
             if (register != null) { query.setRegister(register); }
             if (Array.isArray(data) == false) { reject(new Error("Query requires data.")); return; }
             else { query.setData(data); }
             dataCallback = function (data) {
-                if (query.parseReply(data) == []) {
+                let d = query.parseReply(data);
+                if (d.length != null && d.length == 0) {
                     resolve();
                 }
                 else {
