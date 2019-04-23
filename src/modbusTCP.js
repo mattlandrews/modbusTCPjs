@@ -1,46 +1,85 @@
 "use strict";
 
 const net = require("net");
-//const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
+const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
 
 module.exports = function modbusTCP () {
 
     let socket = new net.Socket();
-    let errorHandler = [];
-    let connectHandler = [];
-    let closeHandler = [];
-    
+
     this.transaction = 0;
     this.ip = "127.0.0.1";
     this.port = 502;
+    this.reconnect = true;
+    this.connected = false;
+    this.connectCallback = null;
+    this.dataCallback = null;
 
-    socket.on("error", function (err) {
-        errorHandler.forEach(function (d) { d(err); });
+    this.query = new readHoldingRegistersQuery();
+
+    let _this = this;
+
+    socket.on("error", (err) => {
+        if (!_this.connected) {
+            _this.connectCallback(err);
+        }
+        else {
+            _this.dataCallback(err);
+        }
     });
 
-    socket.on("connect", function () {
-        connectHandler.forEach(function (d) { d(); });
+    socket.on("close", () => {
+        _this.connected = false;
+        if (_this.dataCallback != null) {
+            socket.off("data", _this.dataCallback);
+            _this.dataCallback = null;
+        }
+        if (_this.reconnect) { setTimeout(() => { socket.connect(_this.port, _this.ip); }, 1000); }
     });
 
-    socket.on("close", function () {
-        closeHandler.forEach(function (d) { d(); });
+    socket.on("connect", () => {
+        _this.connectCallback();
     });
 
-    this.on = function (event, func) {
-        if (event === "error") { errorHandler.push(func); }
-        if (event === "connect") { connectHandler.push(func); }
-        if (event === "close") { closeHandler.push(func); }
-    };
+    socket.on("data", (data) => {
+        let d = _this.query.parseReply(data);
+        if (d != null) { _this.dataCallback(null, d); }
+        else { _this.dataCallback(new Error("Error")); }      
+    });
 
-    this.connect = function (ip, port) {
+    this.connect = function (ip, port, callback) {
+
         if ((typeof ip === "string") && (ip.match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) !== null)) {
-            this.ip = ip;
+            _this.ip = ip;
         }
         if ((isNaN(port) == false) && (port > 0) && (port < 65536)) {
-            this.port = port;
+            _this.port = port;
         }
-        socket.connect(this.ip, this.port);
-    };
+        if (typeof callback === "function") {
+            _this.connectCallback = callback;
+        }
+        _this.reconnect = true;
+        socket.connect(_this.port, _this.ip);
+    
+    }
+
+    this.close = function () {
+        _this.dataCallback = null;
+        _this.transaction = 0;
+        _this.connected = false;
+        _this.reconnect = false;
+        socket.end();
+    }
+
+    this.sendQuery = function (callback) {
+        _this.dataCallback = callback;
+        _this.query.setTransaction(_this.transaction);
+        _this.transaction++;
+
+        socket.write(_this.query.getBuffer());
+    }
+
+    this.readHoldingRegistersQuery = readHoldingRegistersQuery;
 }
 
 /*
