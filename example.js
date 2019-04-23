@@ -1,19 +1,9 @@
+"use strict";
+
 const ModbusTCP = require("./src/ModbusTCP.js");
 
-let mbtcp = new ModbusTCP("127.0.0.1");
-let errorCount = 0;
+let mbtcp = new ModbusTCP();
 
-mbtcp.readHoldingRegisters(0, 3)
-    .catch(function (err) {
-        console.log(err);
-    })
-    .then(function (data) {
-        console.log(data);
-        mbtcp.writeHoldingRegisters(0, [1])
-            .catch(function (err) {
-                console.log(err);
-            })
-            .then(function (data) {
-                console.log(data);
-            });
-    });
+mbtcp.on("connect", function () { console.log("Connected."); });
+mbtcp.on("error", function (err) { console.error("Error: " + err); });
+mbtcp.connect("127.0.0.1", 502);

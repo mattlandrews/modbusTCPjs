@@ -1,9 +1,49 @@
 "use strict";
 
-const _readHoldingRegisters = require("./readHoldingRegisters.js");
-const _writeHoldingRegisters = require("./writeHoldingRegisters.js");
 const net = require("net");
+//const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
 
+module.exports = function modbusTCP () {
+
+    let socket = new net.Socket();
+    let errorHandler = [];
+    let connectHandler = [];
+    let closeHandler = [];
+    
+    this.transaction = 0;
+    this.ip = "127.0.0.1";
+    this.port = 502;
+
+    socket.on("error", function (err) {
+        errorHandler.forEach(function (d) { d(err); });
+    });
+
+    socket.on("connect", function () {
+        connectHandler.forEach(function (d) { d(); });
+    });
+
+    socket.on("close", function () {
+        closeHandler.forEach(function (d) { d(); });
+    });
+
+    this.on = function (event, func) {
+        if (event === "error") { errorHandler.push(func); }
+        if (event === "connect") { connectHandler.push(func); }
+        if (event === "close") { closeHandler.push(func); }
+    };
+
+    this.connect = function (ip, port) {
+        if ((typeof ip === "string") && (ip.match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) !== null)) {
+            this.ip = ip;
+        }
+        if ((isNaN(port) == false) && (port > 0) && (port < 65536)) {
+            this.port = port;
+        }
+        socket.connect(this.ip, this.port);
+    };
+}
+
+/*
 module.exports = function ModbusTCP(ip, port) {
     
     let socket = new net.Socket();
@@ -11,15 +51,7 @@ module.exports = function ModbusTCP(ip, port) {
     let query = null;
     let dataCallback = null;
     
-    if ((typeof ip !== "string") || (ip.match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) == null)) {
-        throw new Error("ip of ${ip} is invalid.");
-    }
-    this.ip = ip;
-
-    this.port = 502;
-    if ((isNaN(port) == false) && (port > 0) && (port < 65536)) {
-        this.port = port;
-    }
+    
 
     this.transaction = 0;
 
@@ -90,3 +122,4 @@ module.exports = function ModbusTCP(ip, port) {
 
 };
 
+*/
