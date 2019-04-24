@@ -14,6 +14,9 @@ module.exports = function modbusTCP () {
     this.connected = false;
     this.connectCallback = null;
     this.dataCallback = null;
+    this.pollrate = 1000;
+    this.polling = false;
+    this.querySent = null;
 
     this.query = new readHoldingRegistersQuery();
 
@@ -44,7 +47,24 @@ module.exports = function modbusTCP () {
     socket.on("data", (data) => {
         let d = _this.query.parseReply(data);
         if (d != null) { _this.dataCallback(null, d); }
-        else { _this.dataCallback(new Error("Error")); }      
+        else { _this.dataCallback(new Error("Error")); }
+        if (_this.polling) {
+            let dt = (new Date().valueOf() - _this.querySent);
+            if (dt < _this.pollrate) {
+                setTimeout(() => {
+                    _this.query.setTransaction(_this.transaction);
+                    _this.transaction++;
+                    _this.querySent = new Date().valueOf();
+                    socket.write(_this.query.getBuffer());
+                }, (_this.pollrate - dt))
+            }
+            else {
+                _this.query.setTransaction(_this.transaction);
+                _this.transaction++;
+                _this.querySent = new Date().valueOf();
+                socket.write(_this.query.getBuffer());
+            }
+        }
     });
 
     this.connect = function (ip, port, callback) {
@@ -72,93 +92,26 @@ module.exports = function modbusTCP () {
     }
 
     this.sendQuery = function (callback) {
+        _this.polling = false;
         _this.dataCallback = callback;
         _this.query.setTransaction(_this.transaction);
         _this.transaction++;
-
         socket.write(_this.query.getBuffer());
+    }
+
+    this.pollQuery = function (pollrate, callback) {
+        _this.polling = true;
+        _this.pollrate = pollrate;
+        _this.dataCallback = callback;
+        _this.query.setTransaction(_this.transaction);
+        _this.transaction++;
+        _this.querySent = new Date().valueOf();
+        socket.write(_this.query.getBuffer());
+    }
+
+    this.stopPolling = function () {
+        _this.polling = false;
     }
 
     this.readHoldingRegistersQuery = readHoldingRegistersQuery;
 }
-
-/*
-module.exports = function ModbusTCP(ip, port) {
-    
-    let socket = new net.Socket();
-    let connected = false;
-    let query = null;
-    let dataCallback = null;
-    
-    
-
-    this.transaction = 0;
-
-    socket.on("close", function () {
-        socket.connect(this.port, this.ip);
-    }.bind(this));
-    socket.on("data", function (data) {
-        if (dataCallback != null) {
-            dataCallback(data);
-        }
-    });
-    socket.on("error", function (err) {
-        console.log(err);
-    });
-
-    socket.connect(this.port, this.ip);
-
-    this.readHoldingRegisters = function (register, length, callback) {
-        let transaction = this.transaction;
-        this.transaction++;
-        return new Promise(function (resolve, reject) {
-            if (query != null) {
-                reject(new Error("Query already outstanding."));
-                return;
-            }
-            query = new _readHoldingRegisters();
-            query.setTransaction(transaction);
-            if (register != null) { query.setRegister(register); }
-            if (length != null) { query.setLength(length); }
-            dataCallback = function (data) {
-                let d = query.parseReply(data);
-                if (d != null) { resolve(d); }
-                else {
-                    reject(new Error("Error"));
-                }
-                query = null;
-            }
-            socket.write(query.getBuffer());
-        });
-    }
-
-    this.writeHoldingRegisters = function (register, data, callback) {
-        let transaction = this.transaction;
-        this.transaction++;
-        return new Promise(function (resolve, reject) {
-            if (query != null) {
-                reject(new Error("Query already outstanding."));
-                return;
-            }
-            query = new _writeHoldingRegisters();
-            query.setTransaction(transaction);
-            if (register != null) { query.setRegister(register); }
-            if (Array.isArray(data) == false) { reject(new Error("Query requires data.")); return; }
-            else { query.setData(data); }
-            dataCallback = function (data) {
-                let d = query.parseReply(data);
-                if (d.length != null && d.length == 0) {
-                    resolve();
-                }
-                else {
-                    reject();
-                }
-                query = null;
-            }
-            socket.write(query.getBuffer());
-        });
-    }
-
-};
-
-*/
