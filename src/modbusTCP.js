@@ -37,7 +37,7 @@ module.exports = function modbusTCP () {
             socket.off("data", _this.dataCallback);
             _this.dataCallback = null;
         }
-        if (_this.reconnect) { setTimeout(() => { socket.connect(_this.port, _this.ip); }, 1000); }
+        if (_this.reconnect) { setTimeout(() => { socket.connect(_this.port, _this.ip); }, 20); }
     });
 
     socket.on("connect", () => {
