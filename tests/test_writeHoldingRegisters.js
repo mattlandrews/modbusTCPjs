@@ -42,10 +42,10 @@ describe("WriteHoldingRegisters()", function () {
         expect(whr.getLength()).to.equal(4);
     });
     it ("getBuffer()", function () {
-        expect(whr.getBuffer()).to.deep.equal(new Buffer([0,0,0,0,0,15,1,16,253,232,0,4,8,0,0,0,1,0,2,0,3]));
+        expect(whr.getBuffer()).to.deep.equal(Buffer.alloc(21, new Uint8Array([0,0,0,0,0,15,1,16,253,232,0,4,8,0,0,0,1,0,2,0,3])));
     });
     it ("parseReply()", function () {
-        expect(whr.parseReply(new Buffer([0,0,0,0,0,5,1,16,253,232,0,4]))).to.deep.equal([]);
-        expect(whr.parseReply(new Buffer([0,0,0,0,0,5,2,16,253,232,0,4]))).to.be.null;
+        expect(whr.parseReply(Buffer.alloc(12, new Uint8Array([0,0,0,0,0,5,1,16,253,232,0,4])))).to.deep.equal([]);
+        expect(whr.parseReply(Buffer.alloc(12, new Uint8Array([0,0,0,0,0,5,2,16,253,232,0,4])))).to.be.null;
     });
 });

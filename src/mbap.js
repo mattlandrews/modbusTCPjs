@@ -7,7 +7,7 @@ module.exports = class MBAP {
         this._protocol = 0;
         this._byteLength = 1;
         this._device = 1;
-        this._buffer = new Buffer(245);
+        this._buffer = Buffer.alloc(245);
         this._buffer.fill(0);
         this._buffer[5] = 1;
         this._buffer[6] = 1;

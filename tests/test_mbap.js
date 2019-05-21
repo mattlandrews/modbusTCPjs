@@ -26,16 +26,16 @@ describe("MBAP()", function () {
         expect(mbap.getDevice()).to.equal(3);
     });
     it ("getBuffer()", function () {
-        expect(mbap.getBuffer()).to.deep.equal(new Buffer([0,1,0,0,0,1,3]));
+        expect(mbap.getBuffer()).to.deep.equal(Buffer.alloc(7, new Uint8Array([0,1,0,0,0,1,3])));
     });
     it ("parseMBAP()", function () {
-        expect (mbap.parseMBAP(new Buffer([0,1,0,0,0,1,3]))).to.equal(true);
-        expect (mbap.parseMBAP(new Buffer([1,1,0,0,0,1,3]))).to.equal(false);
-        expect (mbap.parseMBAP(new Buffer([0,0,0,0,0,1,3]))).to.equal(false);
-        expect (mbap.parseMBAP(new Buffer([0,1,1,0,0,1,3]))).to.equal(false);
-        expect (mbap.parseMBAP(new Buffer([0,1,0,1,0,1,3]))).to.equal(false);
-        expect (mbap.parseMBAP(new Buffer([0,1,0,0,1,1,3]))).to.equal(true);
-        expect (mbap.parseMBAP(new Buffer([0,1,0,0,0,2,3]))).to.equal(true);
-        expect (mbap.parseMBAP(new Buffer([0,1,0,0,0,1,2]))).to.equal(false);
+        expect (mbap.parseMBAP(Buffer.alloc(7, new Uint8Array([0,1,0,0,0,1,3])))).to.equal(true);
+        expect (mbap.parseMBAP(Buffer.alloc(7, new Uint8Array([1,1,0,0,0,1,3])))).to.equal(false);
+        expect (mbap.parseMBAP(Buffer.alloc(7, new Uint8Array([0,0,0,0,0,1,3])))).to.equal(false);
+        expect (mbap.parseMBAP(Buffer.alloc(7, new Uint8Array([0,1,1,0,0,1,3])))).to.equal(false);
+        expect (mbap.parseMBAP(Buffer.alloc(7, new Uint8Array([0,1,0,1,0,1,3])))).to.equal(false);
+        expect (mbap.parseMBAP(Buffer.alloc(7, new Uint8Array([0,1,0,0,1,1,3])))).to.equal(true);
+        expect (mbap.parseMBAP(Buffer.alloc(7, new Uint8Array([0,1,0,0,0,2,3])))).to.equal(true);
+        expect (mbap.parseMBAP(Buffer.alloc(7, new Uint8Array([0,1,0,0,0,1,2])))).to.equal(false);
     });
 });
