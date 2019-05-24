@@ -1,11 +1,17 @@
 "use strict";
 
-const net = require("net");
+const mbSocket = require("./mbSocket.js");
 const readHoldingRegistersQuery = require("./readHoldingRegistersQuery.js");
 
-module.exports = function modbusTCP () {
+module.exports = function modbusTCP (type) {
 
-    let socket = new net.Socket();
+    let socket;
+    if (type === "test") {
+        socket = new (require("../lib/testSocket.js"))();
+    }
+    else {
+        socket = new mbSocket();
+    }
 
     this.transaction = 0;
     this.ip = "127.0.0.1";

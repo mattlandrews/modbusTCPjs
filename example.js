@@ -1,5 +1,5 @@
 "use strict";
-const ModbusTCP = require("./src/ModbusTCP.js");
+const ModbusTCP = require("./src/modbusTCP.js");
 
 let mbtcp = new ModbusTCP();
 

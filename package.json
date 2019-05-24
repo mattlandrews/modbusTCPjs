@@ -4,7 +4,7 @@
   "description": "Provides a web-interface to data collected from an automation control network.",
   "main": "main.js",
   "scripts": {
-    "start": "",
+    "start": "node ./example.js",
     "test": "mocha ./tests"
   },
   "author": "Matt Andrews",
