@@ -1,6 +1,6 @@
 "use strict";
 
-const WriteHoldingRegisters = require("../src/writeHoldingRegisters.js");
+const WriteHoldingRegisters = require("../src/writeHoldingRegistersQuery.js");
 const expect = require("chai").expect;
 
 describe("WriteHoldingRegisters()", function () {

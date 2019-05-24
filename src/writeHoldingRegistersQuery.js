@@ -2,7 +2,7 @@
 
 const MBAP = require("./mbap.js");
 
-module.exports = class WriteHoldingRegisters extends MBAP {
+module.exports = class WriteHoldingRegistersQuery extends MBAP {
 
     constructor () {
         super();

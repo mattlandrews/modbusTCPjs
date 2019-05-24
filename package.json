@@ -1,14 +1,11 @@
 {
-  "name": "the_project",
+  "name": "modbustcpjs",
   "version": "0.0.1",
   "description": "Provides a web-interface to data collected from an automation control network.",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "testQuery": "mocha ./tests/modbusQuery.js",
-    "testReply": "mocha ./tests/modbusReply.js",
-    "test": "mocha ./tests",
-    "testWatch": "mocha --watch ./tests/readHoldingRegistersReply.js"
+    "start": "",
+    "test": "mocha ./tests"
   },
   "author": "Matt Andrews",
   "license": "UNLICENSED",
