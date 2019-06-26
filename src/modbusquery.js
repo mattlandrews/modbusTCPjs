@@ -1,16 +1,26 @@
 "use strict";
 
-module.exports = class MBAP {
+module.exports = class ModbusQuery {
 
-    constructor () {
+    constructor (type) {
+        this._buffer = Buffer.alloc(245);
+        this._buffer.fill(0);
         this._transaction = 0;
         this._protocol = 0;
         this._byteLength = 1;
-        this._device = 1;
-        this._buffer = Buffer.alloc(245);
-        this._buffer.fill(0);
         this._buffer[5] = 1;
-        this._buffer[6] = 1;
+        this._device = 1;
+        this._buffer[6] = 1;        
+        if (type == null) { type = "readholdingregisters"; }
+        if ((typeof type === "string") && (type.toLowerCase() === "readholdingregisters")) {
+            this._function = 3;
+            this._buffer[7] = 3;
+            this._address = 0;
+            this._length = 1;
+            this._buffer[11] = 1;
+            this._byteLength = 6;
+            this._buffer[5] = 6;
+        }
     }
 
     setTransaction (transaction) {
