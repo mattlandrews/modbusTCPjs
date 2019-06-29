@@ -2,53 +2,52 @@
 
 module.exports = class ModbusQuery {
 
-    constructor (type) {
-        this._buffer = Buffer.alloc(245);
-        this._buffer.fill(0);
-        this._transaction = 0;
-        this._protocol = 0;
-        this._byteLength = 1;
-        this._buffer[5] = 1;
-        this._device = 1;
-        this._buffer[6] = 1;        
-        if (type == null) { type = "readholdingregisters"; }
-        if ((typeof type === "string") && (type.toLowerCase() === "readholdingregisters")) {
-            this._function = 3;
-            this._buffer[7] = 3;
-            this._address = 0;
-            this._length = 1;
-            this._buffer[11] = 1;
-            this._byteLength = 6;
-            this._buffer[5] = 6;
+    constructor (query) {
+        if (typeof query === "object") {
+            constructFromObject(query);
         }
     }
 
-    setTransaction (transaction) {
-        this._transaction = transaction;
-        this._buffer.writeUInt16BE(this._transaction, 0);
-    }
+    constructFromObject (query) {
 
-    getTransaction () {
-        return this._transaction;
-    }
+        this.buffer = Buffer.alloc(512);
+        this.buffer.fill(0);
+        
+        if (query.transaction != null) {
+            this.transaction = toByte(query.transaction);
+            this.buffer.writeUInt16BE(this.transaction, 0);
+        }
+        else {
+            this.transaction = 0;
+        }
 
-    setDevice (device) {
-        this._device = device;
-        this._buffer.writeUInt8(this._device, 6);
-    }
+        this.protocol = 0;
 
-    getDevice () {
-        return this._device;
+        this.byteLength = 1;
+        this.buffer[5] = 1;
+        
+        if (query.device != null) {
+            this.device = toByte(query.device);
+        }
+        else {
+            this.device = 1;
+        }
+        this.buffer.writeUInt8(this.device, 6);
+
+        if (query.type.toLowerCase() === "readholdingregisters") {
+            this.function = 3;
+            this.buffer.writeUInt8(this.function, 7);
+            this.address = query.address;
+            this.buffer.writeUInt16BE(this.address, 8);
+            this.length = query.length;
+            this.buffer.writeUInt16BE(this.length, 10);
+            this.byteLength = 6;
+            this.buffer.writeUInt16BE(this.byteLength, 4);
+        }
     }
 
     getBuffer () {
-        return this._buffer.slice(0, (this._byteLength + 6));
+        return this.buffer.slice( 6 + this.byteLength );
     }
 
-    parseMBAP (mbap) {
-        if (mbap.readUInt16BE(0) !== this._transaction) { return false; }
-        if (mbap.readUInt16BE(2) !== this._protocol) { return false; }
-        if (mbap.readUInt8(6) !== this._device) { return false; }
-        return true;
-    }
 };
