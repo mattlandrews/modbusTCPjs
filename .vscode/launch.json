@@ -7,8 +7,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Example App",
-            "program": "${workspaceRoot}/example.js",
+            "name": "Example Client App",
+            "program": "${workspaceRoot}/example_client.js",
             "args": []
         },
         {

@@ -29,7 +29,7 @@ describe("#ModbusQuery", function () {
         expect(m.length).to.equal(1);
         expect(m.getBuffer()).to.deep.equal(Buffer.from([0,0,0,0,0,6,1,3,0,0,0,1]));
     });
-    it ("Constructor w/ defined query", function () {
+    it ("Constructor w/ defined query (readHoldingRegister)", function () {
         let m = new modbusquery({
             type: "readHoldingRegisters",
             transaction: 2025,
@@ -46,5 +46,9 @@ describe("#ModbusQuery", function () {
         expect(m.address).to.equal(16045);
         expect(m.length).to.equal(24);
         expect(m.getBuffer()).to.deep.equal(Buffer.from([7,233,0,0,0,6,14,3,62,173,0,24]));
+    });
+    it ("getBuffer()", function () {
+        let m = new modbusquery();
+        expect(m.getBuffer()).to.deep.equal(m.buffer.slice(0,(6 + m.byteLength)));
     });
 });
