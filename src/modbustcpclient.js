@@ -2,6 +2,7 @@
 
 const net = require("net");
 const ModbusQuery = require("./modbusquery.js");
+const ModbusReply = require("./modbusreply.js");
 
 module.exports = function ModbusTcpClient () {
 
@@ -9,7 +10,7 @@ module.exports = function ModbusTcpClient () {
     let state = "disconnected";
     let connectCallback = null;
     let dataCallback = null;
-    
+    let lastQuery = null;
 
     function socketConnect () {
         state = "connected";
@@ -17,7 +18,12 @@ module.exports = function ModbusTcpClient () {
     }
 
     function socketData (data) {
-        if (typeof dataCallback === "function") { dataCallback(data); }
+        let reply = new ModbusReply(data);
+        if (reply.transaction != lastQuery.transaction) { throw new Error("Modbus Device Returned Invalid Transaction ID."); }
+        if (reply.protocol != 0) { throw new Error("Modbus Device Returned Invalid Protocol."); }
+        if (reply.func != lastQuery.func) { throw new Error("Modbus Device Returned Invalid Function."); }
+        if (reply.length != lastQuery.length) { throw new Error("Modbus Device Returned Invalid Data Length."); }
+        if (typeof dataCallback === "function") { dataCallback(reply.data); }
     }
 
     socket.on("connect", socketConnect);
@@ -32,18 +38,8 @@ module.exports = function ModbusTcpClient () {
 
     this.sendQuery = function (q, callback) {
         if (typeof callback === "function") { dataCallback = callback; }
-        let query = new ModbusQuery(q);
-        socket.write(query.getBuffer());
-    }
-
-    function sendQuery () {
-        if (q >= queries.length) { q = 0; }
-        let query = queries[q];
-        socket.write(query.buffer);
-    }
-
-    function procData () {
-        debugger;
+        lastQuery = new ModbusQuery(q);
+        socket.write(lastQuery.getBuffer());
     }
 
     return this;

@@ -2,7 +2,7 @@
 
 const ModbusMBAP = require("./modbusmbap.js");
 
-module.exports = class ModbusQuery extends ModbusMBAP {
+module.exports = class ModbusReply extends ModbusMBAP {
 
     constructor (data) {
         if (data == null) { data = {}; }
@@ -19,19 +19,25 @@ module.exports = class ModbusQuery extends ModbusMBAP {
     };
 
     _constructReadHoldingRegistersFromObject (obj) {
-        this.byteLength = 6;
-        this.buffer.writeUInt16BE(this.byteLength,4);
-        this.address = (obj.address == null) ? 0 : obj.address;
-        this.length = (obj.length == null) ? 1 : obj.length;
-        this.dataLength = (this.length * 2);
-        this.buffer.writeUInt16BE(this.address,8);
-        this.buffer.writeUInt16BE(this.length,10);
+
+        this.data = (Array.isArray(obj.data)) ? obj.data : [0];
+        this.length = this.data.length;
+        this.dataLength = this.length * 2;
+        this.buffer.writeUInt8(this.dataLength, 8);
+        this.byteLength = 3 + this.dataLength;
+        this.buffer.writeUInt16BE(this.byteLength, 4);
+        for (let i=0; i<this.data.length; i++) {
+            this.buffer.writeUInt16BE(this.data[i], (9 + (i * 2)));
+        }
     };
 
     _constructReadHoldingRegistersFromBuffer (buffer) {
-        this.address = buffer.readUInt16BE(8);
-        this.length = buffer.readUInt16BE(10);
-        this.dataLength = this.length * 2;
+        this.dataLength = buffer.readUInt8(8);
+        this.length = this.dataLength / 2;
+        this.data = [];
+        for (let i=0; i<this.length; i++) {
+            this.data.push(buffer.readUInt16BE(9 + (i * 2)));
+        }
         this.buffer = buffer;
     }
 
