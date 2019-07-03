@@ -18,12 +18,15 @@ module.exports = function ModbusTcpClient () {
     }
 
     function socketData (data) {
-        let reply = new ModbusReply(data);
-        if (reply.transaction != lastQuery.transaction) { throw new Error("Modbus Device Returned Invalid Transaction ID."); }
-        if (reply.protocol != 0) { throw new Error("Modbus Device Returned Invalid Protocol."); }
-        if (reply.func != lastQuery.func) { throw new Error("Modbus Device Returned Invalid Function."); }
-        if (reply.length != lastQuery.length) { throw new Error("Modbus Device Returned Invalid Data Length."); }
-        if (typeof dataCallback === "function") { dataCallback(reply.data); }
+        if (state === "sent") {
+            state = "connected";
+            let reply = new ModbusReply(data);
+            if (reply.transaction != lastQuery.transaction) { throw new Error("Modbus Device Returned Invalid Transaction ID."); }
+            if (reply.protocol != 0) { throw new Error("Modbus Device Returned Invalid Protocol."); }
+            if (reply.func != lastQuery.func) { throw new Error("Modbus Device Returned Invalid Function."); }
+            if (reply.length != lastQuery.length) { throw new Error("Modbus Device Returned Invalid Data Length."); }
+            if (typeof dataCallback === "function") { dataCallback(reply.data); }
+        }
     }
 
     socket.on("connect", socketConnect);
@@ -37,9 +40,12 @@ module.exports = function ModbusTcpClient () {
     };
 
     this.sendQuery = function (q, callback) {
-        if (typeof callback === "function") { dataCallback = callback; }
-        lastQuery = new ModbusQuery(q);
-        socket.write(lastQuery.getBuffer());
+        if (state === "connected") {
+            state = "sent";
+            if (typeof callback === "function") { dataCallback = callback; }
+            lastQuery = new ModbusQuery(q);
+            socket.write(lastQuery.getBuffer());
+        }
     }
 
     return this;

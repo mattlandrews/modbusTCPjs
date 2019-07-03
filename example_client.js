@@ -17,7 +17,5 @@ function connected () {
 
 function reply (data) {
     console.log(data);
-    setTimeout(function(){
-        client.sendQuery(query, reply);
-    }, 1000);
+    setTimeout(function () { client.sendQuery(query, reply); }, 33);
 }
