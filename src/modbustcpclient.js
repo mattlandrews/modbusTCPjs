@@ -11,6 +11,8 @@ module.exports = function ModbusTcpClient () {
     let connectCallback = null;
     let dataCallback = null;
     let lastQuery = null;
+    let ip = null;
+    let port = null;
 
     function socketConnect () {
         state = "connected";
@@ -31,9 +33,26 @@ module.exports = function ModbusTcpClient () {
 
     socket.on("connect", socketConnect);
     socket.on("data", socketData);
+    socket.on("error", function (error) {
+        if (error.code === "ECONNREFUSED") {
+            console.error(error);
+            socket.connect(port, ip);
+        }
+        else if (error.code === "EPIPE") {
+            console.error(error);
+            state = "disconnected";
+            socket.destroy();
+            socket.connect(port, ip);
+        }
+        else {
+            console.error(error);
+        }
+    });
 
-    this.connect = function (ip, port, callback)  {
+    this.connect = function (_ip, _port, callback)  {
         if (state === "disconnected") {
+            ip = _ip;
+            port = _port;
             connectCallback = callback;
             socket.connect(port, ip);
         }
