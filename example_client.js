@@ -17,5 +17,9 @@ function connected () {
 
 function reply (data) {
     console.log(data);
-    setTimeout(function () { client.sendQuery(query, reply); }, 33);
+    setTimeout(function () {
+        query.address = Math.round(Math.random() * 65000);
+        query.length = Math.round(Math.random() * 30);
+        client.sendQuery(query, reply);
+    }, 33);
 }
