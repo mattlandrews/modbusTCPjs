@@ -2,27 +2,17 @@
 
 module.exports = class MBAP {
     
-    constructor (data) {
+    constructor () {
 
-        this.transaction = null;
-        this.protocol = null;
-        this.length = null;
-        this.message = null;
-        if (Array.isArray(data)) {
-            this.readMBAPFromBuffer(Buffer.from(data));
-        }
-        else if (Buffer.isBuffer(data)) {
-            this.readMBAPFromBuffer(data);
-        }
-        else if (data != null) {
-            throw new Error("Constructor type not recognized");
-        }
+        this.transaction = 0;
+        this.protocol = 0;
+        this.length = 0;
         return;
 
     };
 
-    toBuffer () {
-
+    toBuffer (length) {
+        this.length = length;
         let buffer = Buffer.allocUnsafe(6 + this.length);
         buffer.writeUInt16BE(this.transaction, 0);
         buffer.writeUInt16BE(this.protocol, 2);
@@ -31,7 +21,7 @@ module.exports = class MBAP {
 
     }
 
-    readMBAPFromBuffer (buffer) {
+    fromBuffer (buffer) {
         
         this.transaction = buffer.readUInt16BE(0);
         this.protocol = buffer.readUInt16BE(2);

@@ -1,13 +1,9 @@
 "use strict";
 
-const ModbusTcpClient = require("./modbustcpclient.js");
-const ModbusTcpServer = require("./modbustcpserver.js");
-const ModbusQuery = require("./modbusquery.js");
+const mbtcp_client = require("./mbtcp_client.js");
 
 module.exports = function ModbusTCP () {
 
-    this.Client = ModbusTcpClient;
-    this.Server = ModbusTcpServer;
-    this.Query = ModbusQuery;
+    this.client = mbtcp_client;
     return this;
 }
