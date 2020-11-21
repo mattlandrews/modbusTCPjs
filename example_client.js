@@ -1,9 +1,7 @@
 'use strict';
 
-const ModbusTCP = require("./mbtcp/mbtcp.js");
-const mbtcp = new ModbusTCP();
-
-let client = new mbtcp.client({ ip: '192.168.1.110', port: 502 });
+const mbtcp = require('./mbtcp/mbtcp.js');
+const client = new mbtcp.client({ ip: '192.168.1.110', port: 502 });
 
 client.on("error", (err) => { console.log(err); });
 
