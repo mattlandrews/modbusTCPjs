@@ -9,14 +9,23 @@
             "request": "launch",
             "name": "Example Client App",
             "program": "${workspaceRoot}/example_client.js",
+            "args": [],
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "EMCP 4.4 Simulator",
+            "program": "${workspaceRoot}/emcp44sim.js",
             "args": []
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "Dev",
-            "program": "${workspaceRoot}/example_server.js",
-            "args": []
+            "name": "app",
+            "program": "${workspaceRoot}/app/main.js",
+            "args": [],
+            "console": "integratedTerminal"
         },
         {
             "type": "node",
