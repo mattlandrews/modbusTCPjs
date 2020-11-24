@@ -63,7 +63,21 @@ module.exports = function Client (options) {
         socket.destroy();
     }
 
-    this.send = function (query) {
+    this.readHoldingRegisters = function (address, count) {
+        let query = new readHoldingRegisters().query;
+        query.address = address;
+        query.count = count;
+        send(query);
+    }
+
+    this.writeHoldingRegisters = function (address, data) {
+        let query = new writeHoldingRegisters().query;
+        query.address = address;
+        query.data = data;
+        send(query);
+    }
+
+    function send (query) {
         let buffer;
         switch (query.func) {
             case 3:
@@ -97,7 +111,7 @@ module.exports = function Client (options) {
         socket.write(buffer);
     }
 
-    this.recv = function (buffer) {
+    function recv (buffer) {
         let reply;
         let func = buffer.readUInt8(7);
         switch (func) {
@@ -131,7 +145,7 @@ module.exports = function Client (options) {
     }
 
     function onData (data) {
-        let reply = this.recv(data);
+        let reply = recv(data);
         dataCallback.forEach((cb) => { cb(reply); });
     }
 
