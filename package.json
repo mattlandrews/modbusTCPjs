@@ -5,11 +5,13 @@
   "main": "main.js",
   "scripts": {
     "start": "node ./example.js",
-    "test": "mocha ./tests"
+    "test": "mocha ./test"
   },
   "author": "Matt Andrews",
   "license": "UNLICENSED",
-  "devDependencies": {},
+  "devDependencies": {
+    "mocha": "^8.2.1"
+  },
   "dependencies": {
     "terminal-kit": "^1.44.0"
   }

@@ -15,6 +15,14 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Example Server App",
+            "program": "${workspaceRoot}/example_server.js",
+            "args": [],
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "EMCP 4.4 Simulator",
             "program": "${workspaceRoot}/emcp44sim.js",
             "args": []
@@ -34,9 +42,9 @@
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
                 "-u",
-                "tdd",
+                "bdd",
                 "--colors",
-                "${workspaceRoot}/tests/"
+                "${workspaceRoot}/test/"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         }

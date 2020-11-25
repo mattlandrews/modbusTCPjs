@@ -1,32 +1,41 @@
 'use strict';
 
-const net = require("net");
+const nodejs_net = require("net");
 const readHoldingRegisters = require('./readHoldingRegisters.js');
 const writeHoldingRegisters = require('./writeHoldingRegisters.js');
 const exception = require('./exception.js');
 
+let net = nodejs_net;
+
 module.exports = function Client (options) {
 
-    let socket = new net.Socket();
+    let socket;
     let connectCallback = [];
     let disconnectCallback = [];
     let dataCallback = [];
     let errorCallback = [];
+    let transactionCounter = 0;
 
     this.reconnect = false;
     this.ip = '127.0.0.1';
     this.port = 502;
-
+    
     if ((options != null) && (typeof options === 'object')) {
         if ((options.ip != null) && (typeof options.ip === 'string')) {
             this.ip = options.ip;
         }
-        if ((options.ip != null) && (typeof options.ip === 'number')) {
+        if ((options.port != null) && (typeof options.port === 'number')) {
             this.port = options.port;
+        }
+        if ((options.net != null) && (typeof options.net === 'object')) {
+            net = options.net;
         }
     }
 
+    socket = new net.Socket();
+
     function onConnect () {
+        transactionCounter = 0;
         connectCallback.forEach((cb) => { cb(); });
     }
 
@@ -55,6 +64,29 @@ module.exports = function Client (options) {
         }
     }
 
+    this.getListeners = function (event) {
+        if (typeof event === 'string') {
+            switch (event.toLowerCase()) {
+                case 'connect': return connectCallback;
+                case 'disconnect': return disconnectCallback;
+                case 'data': return dataCallback;
+                case 'error': return errorCallback;
+            }
+        }
+        return null;
+    }
+
+    this.off = function (event, callback) {
+        if ((typeof event === 'string') && (typeof callback === 'function')) {
+            switch (event.toLowerCase()) {
+                case 'connect': connectCallback = connectCallback.filter((d) => { return (d !== callback); });
+                case 'disconnect': disconnectCallback = disconnectCallback.filter((d) => { return (d !== callback); });
+                case 'data': dataCallback = dataCallback.filter((d) => { return (d !== callback); });
+                case 'error': errorCallback = errorCallback.filter((d) => { return (d !== callback); });
+            }
+        }
+    }
+
     this.connect = function () {
         socket.connect(this.port, this.ip);
     }
@@ -65,6 +97,7 @@ module.exports = function Client (options) {
 
     this.readHoldingRegisters = function (address, count) {
         let query = new readHoldingRegisters().query;
+        query.transaction = transactionCounter++;
         query.address = address;
         query.count = count;
         send(query);
@@ -72,6 +105,7 @@ module.exports = function Client (options) {
 
     this.writeHoldingRegisters = function (address, data) {
         let query = new writeHoldingRegisters().query;
+        query.transaction = transactionCounter++;
         query.address = address;
         query.data = data;
         send(query);
@@ -128,7 +162,7 @@ module.exports = function Client (options) {
                 reply = new writeHoldingRegisters().reply;
                 reply.func = 16;
                 reply.address = buffer.readUInt16BE(8);
-                reply.length = buffer.readUInt16BE(10);
+                reply.count = buffer.readUInt16BE(10);
                 break;
             case 131:
             case 144:

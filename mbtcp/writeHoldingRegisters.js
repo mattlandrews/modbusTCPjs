@@ -4,7 +4,7 @@ module.exports = function WriteHoldingRegisters() {
         type: 'whrs_query',
         transaction: 0,
         protocol: 0,
-        length: 9,
+        length: 15,
         device: 1,
         func: 16,
         address: 0,
