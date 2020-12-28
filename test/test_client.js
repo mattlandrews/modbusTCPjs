@@ -183,7 +183,7 @@ describe('client', function () {
 
     describe('readHoldingRegisters()', () => {
 
-        it('readHoldingRegisters(0,1) - w/o event listner', (done) => {
+        it('readHoldingRegisters(0,1) - w/o event listener', (done) => {
             let client = new mbtcp.client({ net: stub_net });
             client.on('connect', () => {
                 client.readHoldingRegisters(0,1);
@@ -341,7 +341,7 @@ describe('client', function () {
 
     describe('writeHoldingRegisters()', () => {
 
-        it('writeHoldingRegisters(0,[1]) - w/o event listner', (done) => {
+        it('writeHoldingRegisters(0,[1]) - w/o event listener', (done) => {
             let client = new mbtcp.client({ net: stub_net });
             client.on('connect', () => {
                 client.writeHoldingRegisters(0,[1]);
