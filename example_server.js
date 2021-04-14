@@ -1,16 +1,28 @@
 'use strict';
 
 const mbtcp = require('./mbtcp/mbtcp.js');
-const client = new mbtcp.server({ ip: '127.0.0.1', port: 502 });
+const server = new mbtcp.server({ ip: '127.0.0.1', port: 50002 });
 
-client.setHoldingRegisters({ 0: 0, 1: 1, 2: 2 });
+server.setHoldingRegisters({ 0: 0, 1: 1, 2: 2 });
 
-client.on("error", (err) => { console.log(err); });
+server.on("error", (err) => { console.log(err); });
 
-client.on("connect", () => {
-    console.log("connected");
-});
+server.on("start", () => { console.log("started"); });
 
-client.on("disconnect", () => { console.log("disconnected"); });
+server.on("stop", () => { console.log("stopped"); });
 
-client.listen();
+server.on("connect", () => { console.log("connect"); });
+
+server.on("data", (data) => { console.log(data); client.disconnect(); });
+
+server.on("disconnect", () => { console.log("disconnect"); });
+
+server.start();
+
+const client = new mbtcp.client({ ip: '127.0.0.1', port: 50002 });
+
+client.connect();
+
+server.stop();
+
+client.readHoldingRegisters(0,3);

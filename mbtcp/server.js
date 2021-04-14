@@ -1,15 +1,17 @@
 'use strict';
 
-const net = require("net");
+const nodejs_net = require("net");
 const readHoldingRegisters = require('./readHoldingRegisters.js');
 const writeHoldingRegisters = require('./writeHoldingRegisters.js');
 const exception = require('./exception.js');
 
+let net = nodejs_net;
+
 module.exports = function Server (options) {
 
-    let server = new net.Server();
-    
+    let startCallback = [];
     let connectCallback = [];
+    let stopCallback = [];
     let disconnectCallback = [];
     let dataCallback = [];
     let errorCallback = [];
@@ -17,52 +19,106 @@ module.exports = function Server (options) {
     this.ip = '127.0.0.1';
     this.port = 502;
     
-    this.holdingRegisters = [];
+    this.holdingRegisters = {};
+
+    this.connections = [];
 
     if ((options != null) && (typeof options === 'object')) {
         if ((options.ip != null) && (typeof options.ip === 'string')) {
             this.ip = options.ip;
         }
-        if ((options.ip != null) && (typeof options.ip === 'number')) {
+        if ((options.port != null) && (typeof options.port === 'number')) {
             this.port = options.port;
+        }
+        if ((options.net != null) && (typeof options.net === 'object')) {
+            net = options.net;
         }
     }
 
-    function onConnect () {
+    let server = new net.Server();
+
+    function onStart () {
+        startCallback.forEach((cb) => { cb(); });
+    }
+
+    function onStop () {
+        stopCallback.forEach((cb) => { cb(); });
+    }
+
+    function onConnect (socket) {
+        socket.on("error", onError.bind(this));
+        socket.on("data", onData.bind(this));
+        socket.on("close", onDisconnect.bind(this));
         connectCallback.forEach((cb) => { cb(); });
     }
 
     function onDisconnect () {
         disconnectCallback.forEach((cb) => { cb(); });
-        if (this.reconnect) { this.connect(); }
     }
 
     function onError (err) {
         errorCallback.forEach((cb) => { cb(err); });
     }
 
-    server.on('connect', onConnect.bind(this));
-    server.on('close', onDisconnect.bind(this));
-    server.on('data', onData.bind(this));
+    function onData (data) {
+        let reply = recv(data);
+        dataCallback.forEach((cb) => { cb(reply); });
+    }
+
+    server.setMaxListeners(1);
+
+    server.on('listen', onStart.bind(this));
+    server.on('close', onStop.bind(this));
+    server.on('connection', onConnect.bind(this));
+    server.on('disconnect', onDisconnect.bind(this));
     server.on('error', onError.bind(this));
 
     this.on = function (event, callback) {
         if ((typeof event === 'string') && (typeof callback === 'function')) {
             switch (event.toLowerCase()) {
+                case 'start': startCallback.push(callback); break;
+                case 'stop': stopCallback.push(callback); break;
                 case 'connect': connectCallback.push(callback); break;
                 case 'disconnect': disconnectCallback.push(callback); break;
-                case 'data': dataCallback.push(callback); break;
                 case 'error': errorCallback.push(callback); break;
+                case 'data': dataCallback.push(callback); break;
             }
         }
     }
 
-    this.listen = function () {
+    this.off = function (event, callback) {
+        if ((typeof event === 'string') && (typeof callback === 'function')) {
+            switch (event.toLowerCase()) {
+                case 'start': startCallback = startCallback.filter((d) => { return (d !== callback); });
+                case 'stop': stopCallback = stopCallback.filter((d) => { return (d !== callback); });
+                case 'connect': connectCallback = connectCallback.filter((d) => { return (d !== callback); });
+                case 'disconnect': disconnectCallback = disconnectCallback.filter((d) => { return (d !== callback); });
+                case 'data': dataCallback = dataCallback.filter((d) => { return (d !== callback); });
+                case 'error': errorCallback = errorCallback.filter((d) => { return (d !== callback); });
+            }
+        }
+    }
+
+    this.start = function () {
         server.listen(this.port, this.ip);
     }
 
-    this.disconnect = function () {
-        server.destroy();
+    this.getListeners = function (event) {
+        if (typeof event === 'string') {
+            switch (event.toLowerCase()) {
+                case 'start': return startCallback;
+                case 'stop': return stopCallback;
+                case 'connect': return connectCallback;
+                case 'disconnect': return disconnectCallback;
+                case 'data': return dataCallback;
+                case 'error': return errorCallback;
+            }
+        }
+        return null;
+    }
+
+    this.stop = function () {
+        server.close();
     }
 
     this.setHoldingRegisters = function (holdingRegisters) {
@@ -134,11 +190,6 @@ module.exports = function Server (options) {
         reply.length = buffer.readUInt16BE(4);
         reply.device = buffer.readUInt8(6);
         return reply;
-    }
-
-    function onData (data) {
-        let reply = recv(data);
-        dataCallback.forEach((cb) => { cb(reply); });
     }
 
 }
