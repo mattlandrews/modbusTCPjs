@@ -8,11 +8,5 @@
     "test": "mocha ./test"
   },
   "author": "Matt Andrews",
-  "license": "UNLICENSED",
-  "devDependencies": {
-    "mocha": "^8.2.1"
-  },
-  "dependencies": {
-    "terminal-kit": "^1.44.0"
-  }
+  "license": "UNLICENSED"
 }
