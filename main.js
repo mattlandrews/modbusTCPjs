@@ -1,6 +1,22 @@
 'use strict';
 
-const mbtcp = require("./src/modbusTCP");
+const MBSERVER = require("./src/modbusTCPServer.js");
+
+let holdingRegisters = new Array(120);
+
+let mbServer = new MBSERVER();
+mbServer.host = "192.168.1.184";
+mbServer.on("readHoldingRegisters", (request, callback) => {
+    let d = [];
+    for (let i=0; i<request.numAddresses; i++) {
+        d.push(Math.random() * 1001);
+    }
+    callback(d);
+});
+
+mbServer.listen();
+
+/*const mbtcp = require("./src/modbusTCPServer");
 
 let mbClient = new mbtcp.Client();
 (async () => {
@@ -17,7 +33,7 @@ let mbClient = new mbtcp.Client();
         console.log(e);
     }
     mbClient.disconnect();
-})();
+})();*/
 
 /*(async () => {
     mbClient.host = "192.168.1.181";
