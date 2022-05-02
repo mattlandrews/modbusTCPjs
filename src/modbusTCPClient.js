@@ -15,59 +15,105 @@ module.exports = function () {
 
     this.host = "127.0.0.1";
     this.port = 502;
+	this.timeout = 2000;
 
-    this.connect = function () {
+	let connected = false;
+
+	this.readHoldingRegisters = function (device, address, numAddresses) {
 		return new Promise((resolve, reject) => {
-			socket.on("error", reject);
-			socket.connect({ port: this.port, host: this.host }, () => {
-				socket.off("error", reject);
-				socket.on("error", clientError);
-				socket.on("data", clientData);
-				resolve();
-			});
+			function onErr (err) {
+				clearTimeout(timeoutTimer);
+				reject(err);
+			}
+			function sendReq () {
+				let request = new MODBUS();
+				request.mbap.transaction = transaction;
+				request.mbap.protocol = 0;
+				request.mbap.byteLength = 6;
+				request.device = device;
+				request.functionCode = 3;
+				request.type = "readHoldingRegistersRequest";
+				request.address = address;
+				request.numAddresses = numAddresses;
+				socket.write(request.toBuffer());
+			}
+			function recvRes (data) {
+				let response = new MODBUS();
+				response.fromBuffer(data);
+				clearTimeout(timeoutTimer);
+				socket.removeAllListeners("error");
+				if (response.type === "readHoldingRegistersResponse") {
+					resolve(response.data);
+					return;
+				}
+				reject(new Error("response does not appear to match request"));
+			}
+			let timeoutTimer = setTimeout(()=>{
+				reject(new Error("Modbus timeout exceeded"));
+			}, this.timeout);
+			socket.once("error", onErr);
+			if (!connected) {				
+				socket.connect({ port: this.port, host: this.host }, ()=>{
+					connected = true;
+					socket.once("data", recvRes);
+					sendReq();
+				});
+			}
+			else {
+				socket.once("data", recvRes);
+				sendReq();
+			}
 		});
-    }
-
-    this.readHoldingRegisters = function (device, address, numAddresses, callback) {
-		if (typeof callback === "function") { readHoldingRegistersCallback = callback; }
-		let request = new MODBUS();
-		request.mbap.transaction = transaction;
-		request.mbap.protocol = 0;
-		request.mbap.byteLength = 6;
-		request.device = device;
-		request.functionCode = 3;
-		request.type = "readHoldingRegistersRequest";
-		request.address = address;
-		request.numAddresses = numAddresses;
-		socket.write(request.toBuffer());
-    }
-
-	this.writeHoldingRegisters = function (device, address, data, callback) {
-		if (typeof callback === "function") { writeHoldingRegistersCallback = callback; }
-		let request = new MODBUS();
-		request.mbap.transaction = transaction;
-		request.mbap.protocol = 0;
-		request.mbap.byteLength = 7 + (data.length * 2);
-		request.device = device;
-		request.functionCode = 16;
-		request.type = "writeHoldingRegistersRequest";
-		request.address = address;
-		request.numAddresses = data.length;
-		request.dataLength = (data.length * 2);
-		request.data = data;
-		socket.write(request.toBuffer());
 	}
 
-    function clientError (err) {
-		throw error;
-    }
-
-    function clientData (data) {
-		let response = new MODBUS();
-		response.fromBuffer(data);
-		if ((response.type === "readHoldingRegistersResponse") && (typeof readHoldingRegistersCallback === "function")) { readHoldingRegistersCallback(response.data); }
-		else if ((response.type === "writeHoldingRegistersResponse") && (typeof writeHoldingRegistersCallback === "function")) { writeHoldingRegistersCallback(response.data); }
-    }
+	this.writeHoldingRegisters = function (device, address, data) {
+		return new Promise((resolve, reject) => {
+			function onErr (err) {
+				clearTimeout(timeoutTimer);
+				reject(err);
+			}
+			function sendReq () {
+				let request = new MODBUS();
+				request.mbap.transaction = transaction;
+				request.mbap.protocol = 0;
+				request.mbap.byteLength = 7 + (data.length * 2);
+				request.device = device;
+				request.functionCode = 16;
+				request.type = "writeHoldingRegistersRequest";
+				request.address = address;
+				request.numAddresses = data.length;
+				request.dataLength = (data.length * 2);
+				request.data = data;
+				socket.write(request.toBuffer());
+			}
+			function recvRes (data) {
+				let response = new MODBUS();
+				response.fromBuffer(data);
+				clearTimeout(timeoutTimer);
+				socket.removeAllListeners("error");
+				if (response.type === "writeHoldingRegistersResponse") {
+					resolve();
+					return;
+				}
+				reject(new Error("response does not appear to match request"));
+			}
+			let timeoutTimer = setTimeout(()=>{
+				reject(new Error("Modbus timeout exceeded"));
+			}, this.timeout);
+			socket.once("error", onErr);
+			if (!connected) {				
+				socket.connect({ port: this.port, host: this.host }, ()=>{
+					connected = true;
+					socket.once("data", recvRes);
+					sendReq();
+				});
+			}
+			else {
+				socket.once("data", recvRes);
+				sendReq();
+			}
+		});
+	}
 
     return this;
 
