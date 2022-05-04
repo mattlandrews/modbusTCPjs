@@ -28,6 +28,7 @@ module.exports = function () {
 
     this.on = function (event, callback) {
         if (event === "readHoldingRegisters") { readHoldingRegistersCallback = callback; }
+        if (event === "writeHoldingRegisters") { writeHoldingRegistersCallback = callback; }
     }
 
     function serverError (err) {
@@ -42,8 +43,10 @@ module.exports = function () {
         let request = new MODBUS();
         let socket = this;
         request.fromBuffer(data);
+        //console.log("---> " + JSON.stringify(data));
         if ((request.type === "readHoldingRegistersRequest") && (readHoldingRegistersCallback != null)) {
             readHoldingRegistersCallback(request, (data) => {
+                //console.log("------R> " + request.address);
                 let response = new MODBUS();
                 response.mbap.transaction = request.mbap.transaction;
                 response.mbap.protocol = request.mbap.protocol;
@@ -58,6 +61,7 @@ module.exports = function () {
         }
 	if ((request.type === "writeHoldingRegistersRequest") && (writeHoldingRegistersCallback != null)) {
 	    writeHoldingRegistersCallback(request, () => {
+            //console.log("------W> " + request.address);
             let response = new MODBUS();
             response.mbap.transaction = request.mbap.transaction;
             response.mbap.protocol = request.mbap.protocol;
