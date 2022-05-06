@@ -5,7 +5,7 @@ const MODBUS = require("./modbus.js");
 
 module.exports = function () {
 
-    let socket = new Socket();
+    this.socket = new Socket();
     let client = new MODBUS();
 
     let readHoldingRegistersCallback = null;
@@ -20,6 +20,7 @@ module.exports = function () {
 	let connected = false;
 
 	this.readHoldingRegisters = function (device, address, numAddresses) {
+		let _this = this;
 		return new Promise((resolve, reject) => {
 			function onErr (err) {
 				clearTimeout(timeoutTimer);
@@ -35,13 +36,13 @@ module.exports = function () {
 				request.type = "readHoldingRegistersRequest";
 				request.address = address;
 				request.numAddresses = numAddresses;
-				socket.write(request.toBuffer());
+				this.socket.write(request.toBuffer());
 			}
 			function recvRes (data) {
 				let response = new MODBUS();
 				response.fromBuffer(data);
 				clearTimeout(timeoutTimer);
-				socket.removeAllListeners("error");
+				this.socket.removeAllListeners("error");
 				if (response.type === "readHoldingRegistersResponse") {
 					resolve(response.data);
 					return;
@@ -51,17 +52,18 @@ module.exports = function () {
 			let timeoutTimer = setTimeout(()=>{
 				reject(new Error("Modbus timeout exceeded"));
 			}, this.timeout);
-			socket.once("error", onErr);
-			if (!connected) {				
-				socket.connect({ port: this.port, host: this.host }, ()=>{
+			this.socket.once("error", onErr);
+			if (!connected) {
+				this.socket.once("connect", () => {
 					connected = true;
-					socket.once("data", recvRes);
-					sendReq();
+					this.socket.once("data", recvRes.bind(_this));
+					sendReq.call(_this);
 				});
+				this.socket.connect({ port: this.port, host: this.host });
 			}
 			else {
-				socket.once("data", recvRes);
-				sendReq();
+				this.socket.once("data", recvRes.bind(_this));
+				sendReq.call(_this);
 			}
 		});
 	}
@@ -84,13 +86,13 @@ module.exports = function () {
 				request.numAddresses = data.length;
 				request.dataLength = (data.length * 2);
 				request.data = data;
-				socket.write(request.toBuffer());
+				this.socket.write(request.toBuffer());
 			}
 			function recvRes (data) {
 				let response = new MODBUS();
 				response.fromBuffer(data);
 				clearTimeout(timeoutTimer);
-				socket.removeAllListeners("error");
+				this.socket.removeAllListeners("error");
 				if (response.type === "writeHoldingRegistersResponse") {
 					resolve();
 					return;
@@ -100,17 +102,17 @@ module.exports = function () {
 			let timeoutTimer = setTimeout(()=>{
 				reject(new Error("Modbus timeout exceeded"));
 			}, this.timeout);
-			socket.once("error", onErr);
+			this.socket.once("error", onErr);
 			if (!connected) {				
-				socket.connect({ port: this.port, host: this.host }, ()=>{
+				this.socket.connect({ port: this.port, host: this.host }, ()=>{
 					connected = true;
-					socket.once("data", recvRes);
-					sendReq();
+					this.socket.once("data", recvRes.bind(_this));
+					sendReq.call(_this);
 				});
 			}
 			else {
-				socket.once("data", recvRes);
-				sendReq();
+				this.socket.once("data", recvRes.bind(_this));
+				sendReq.call(_this);
 			}
 		});
 	}

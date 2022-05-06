@@ -10,6 +10,7 @@
   "author": "Matt Andrews",
   "license": "UNLICENSED",
   "dependencies": {
-    "mocha": "^9.2.2"
+    "mocha": "^9.2.2",
+    "terminal-kit": "^2.4.0"
   }
 }

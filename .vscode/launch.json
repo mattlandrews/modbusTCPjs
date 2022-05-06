@@ -7,11 +7,22 @@
         {
             "type": "pwa-node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Launch modbusClientPerf",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\client.js"
+            "console":"integratedTerminal",
+            "program": "${workspaceFolder}\\modbusClientPerf.js"
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "Launch modbusServerPerf",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "console":"integratedTerminal",
+            "program": "${workspaceFolder}\\modbusServerPerf.js"
         }
     ]
 }

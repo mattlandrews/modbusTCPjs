@@ -86,6 +86,10 @@ module.exports = function () {
             buffer.writeUInt16BE(this.address, 8);
             buffer.writeUInt16BE(this.numAddresses, 10);
         }
+        else if ((this.type === "readHoldingRegistersException")
+            || (this.type === "writeHoldingRegistersException")) {
+            buffer.writeUInt8(this.exceptionCode, 8);
+        }
 
         return buffer;
     }
