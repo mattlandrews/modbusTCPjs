@@ -22,7 +22,8 @@
                 "<node_internals>/**"
             ],
             "console":"integratedTerminal",
-            "program": "${workspaceFolder}\\modbusServerPerf.js"
+            "program": "${workspaceFolder}\\modbusServerPerf.js",
+            "args": ["--host", "127.0.0.1", "--port", "502"]
         }
     ]
 }
