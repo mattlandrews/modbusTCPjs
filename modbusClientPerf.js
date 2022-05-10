@@ -50,8 +50,8 @@ function getInteger (title, def, min, max) {
         
         let mbClient = new MBCLIENT();
 
-        mbClient.host = "192.168.1.19";
-        mbClient.port = 502;
+        mbClient.host = ip;
+        mbClient.port = port;
 
         let stats = {
             numTotalResponses: 0,
@@ -67,7 +67,7 @@ function getInteger (title, def, min, max) {
         }, 1000);
 
         function read () {
-            mbClient.readHoldingRegisters(1,0,1)
+            mbClient.readHoldingRegisters(1,address,numAddresses)
                 .then((data) => {
                     stats.numTotalResponses++;
                     read();
