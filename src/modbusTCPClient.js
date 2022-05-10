@@ -24,6 +24,7 @@ module.exports = function () {
 		return new Promise((resolve, reject) => {
 			function onErr (err) {
 				clearTimeout(timeoutTimer);
+				if (_this.socket.readyState === "closed") { connected = false; }
 				reject(err);
 			}
 			function sendReq () {
@@ -72,6 +73,7 @@ module.exports = function () {
 		return new Promise((resolve, reject) => {
 			function onErr (err) {
 				clearTimeout(timeoutTimer);
+				if (_this.socket.readyState === "closed") { connected = false; }
 				reject(err);
 			}
 			function sendReq () {
