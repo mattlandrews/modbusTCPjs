@@ -16,6 +16,11 @@ module.exports = function (socket) {
         this.socket.end();
     })
 
+    this.socket.on("error", (err) => {
+	if (err.code === "ECONNRESET") { this.socket.destroy(); return; }
+        throw err;
+    });
+
     let lastNumTotalRequests = 0;
     setInterval(()=>{
         this.stats.requestsPerSecond = (this.stats.numTotalRequests - lastNumTotalRequests);
