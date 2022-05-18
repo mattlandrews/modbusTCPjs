@@ -58,11 +58,11 @@ function selectInterfaces () {
 function selectPort () {
     return new Promise((resolve, reject) => {
         term.clear();
-        term("Enter the desired port number (default is 502): ");
-        term.inputField({ default: "502", minLength: "1", maxLength: "5" }, (err, input) => {
-            let port = 502;
+        term("Enter the desired port number (default is 4000): ");
+        term.inputField({ default: "4000", minLength: "1", maxLength: "5" }, (err, input) => {
+            let port = 4000;
             if (err == null) { port = Number.parseInt(input); }
-            if (isNaN(port)) { port = 502; }
+            if (isNaN(port)) { port = 4000; }
             if (port > 65535) { port = 65535; }
             if (port < 0) { port = 0; }
             resolve(port);

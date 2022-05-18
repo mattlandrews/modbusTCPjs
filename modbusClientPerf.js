@@ -67,7 +67,7 @@ function getInteger (title, def, min, max) {
         }, 1000);
 
         function read () {
-            mbClient.readHoldingRegisters(1,address,numAddresses)
+            mbClient.readHoldingRegisters(255,address,numAddresses)
                 .then((data) => {
                     stats.numTotalResponses++;
                     read();
