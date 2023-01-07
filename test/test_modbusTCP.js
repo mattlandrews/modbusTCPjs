@@ -88,5 +88,33 @@ describe("modbus", function () {
             modbus.data = [19,20,21,22];
             assert.deepStrictEqual(modbus.toBuffer(),Buffer.from([0,16,0,17,0,11,18,3,8,0,19,0,20,0,21,0,22]));
         });
+        it("should return a valid buffer from a Write Holding Registers Request (1 in length)", function () {
+            let modbus = new MODBUS();
+            modbus.mbap.transaction = 25;
+            modbus.mbap.protocol = 0;
+            modbus.mbap.byteLength = 9;
+            modbus.device = 2;
+            modbus.functionCode = 16;
+            modbus.type = "writeHoldingRegistersRequest";
+            modbus.address = 0;
+            modbus.numAddresses = 1;
+            modbus.dataLength = 2;
+            modbus.data = [0];
+            assert.deepStrictEqual(modbus.toBuffer(),Buffer.from([0,25,0,0,0,9,2,16,0,0,0,1,2,0,0]));
+        });
+        it("should return a valid buffer from a Write Holding Registers Request (120 in length)", function () {
+            let modbus = new MODBUS();
+            modbus.mbap.transaction = 512;
+            modbus.mbap.protocol = 0;
+            modbus.mbap.byteLength = 247;
+            modbus.device = 255;
+            modbus.functionCode = 16;
+            modbus.type = "writeHoldingRegistersRequest";
+            modbus.address = 65000;
+            modbus.numAddresses = 120;
+            modbus.dataLength = 240;
+            modbus.data = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+            assert.deepStrictEqual(modbus.toBuffer(),Buffer.from([2,0,0,0,0,247,255,16,253,232,0,120,240,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]));
+        });
     });
 });

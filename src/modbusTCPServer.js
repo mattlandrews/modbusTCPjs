@@ -106,21 +106,21 @@ module.exports = function () {
                 }
             });
         }
-	if ((request.type === "writeHoldingRegistersRequest") && (writeHoldingRegistersCallback != null)) {
-        this.stats.numTotalRequests++;
-	    writeHoldingRegistersCallback(request, () => {
-            let response = new MODBUS();
-            response.mbap.transaction = request.mbap.transaction;
-            response.mbap.protocol = request.mbap.protocol;
-            response.mbap.byteLength = 6;
-            response.device = request.device;
-            response.functionCode = request.functionCode;
-            response.type = "writeHoldingRegistersResponse";
-            response.address = request.address;
-            response.numAddresses = request.numAddresses;
-            socket.write(response.toBuffer());
-	    });
-	}
+        if ((request.type === "writeHoldingRegistersRequest") && (writeHoldingRegistersCallback != null)) {
+            this.stats.numTotalRequests++;
+            writeHoldingRegistersCallback(request, () => {
+                let response = new MODBUS();
+                response.mbap.transaction = request.mbap.transaction;
+                response.mbap.protocol = request.mbap.protocol;
+                response.mbap.byteLength = 6;
+                response.device = request.device;
+                response.functionCode = request.functionCode;
+                response.type = "writeHoldingRegistersResponse";
+                response.address = request.address;
+                response.numAddresses = request.numAddresses;
+                socket.write(response.toBuffer());
+            });
+        }
     }
 
     return this;
