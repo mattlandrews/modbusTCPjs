@@ -5,7 +5,23 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "pwa-node",
+            "args": [
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceFolder}/test"
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "name": "Mocha Tests",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
+            "type": "node",
             "request": "launch",
             "name": "Launch modbusClientPerf",
             "skipFiles": [
@@ -15,7 +31,7 @@
             "program": "${workspaceFolder}\\modbusClientPerf.js"
         },
         {
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "Launch modbusServerPerf",
             "skipFiles": [
