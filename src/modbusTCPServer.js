@@ -39,7 +39,6 @@ module.exports = function () {
     }
 
     this.on = function (event, callback) {
-        
         if (event === "readHoldingRegisters") { readHoldingRegistersCallback = callback; }
         else if (event === "writeHoldingRegisters") { writeHoldingRegistersCallback = callback; }
         else if (event === "readWriteHoldingRegisters") { readWriteHoldingRegistersCallback = callback; }
@@ -104,36 +103,6 @@ module.exports = function () {
                 if ((socket.readyState === "open") || (socket.readyState === "writeOnly")) { socket.write(response.toBuffer()); }
             });
         }
-        /*if ((request.type === "readHoldingRegistersRequest") && (readHoldingRegistersCallback != null)) {
-            this.stats.numTotalRequests++;
-            readHoldingRegistersCallback(request, (data) => {
-                if (typeof data === "number") { data = [data]; }
-                if (Array.isArray(data)) {
-                    let response = new MODBUS();
-                    response.transaction = request.transaction;
-                    response.protocol = 0;
-                    response.queryLength = (3 + (data.length * 2));
-                    response.device = request.device;
-                    response.functionCode = request.functionCode;
-                    response.type = "readHoldingRegistersReply";
-                    response.dataLength = (data.length * 2);
-                    response.data = data;
-                    if ((socket.readyState === "open") || (socket.readyState === "writeOnly")) { socket.write(response.toBuffer()); }
-                }
-                else {
-                    this.stats.numTotalErrors++;
-                    let exception = new MODBUS();
-                    exception.transaction = request.transaction;
-                    exception.protocol = 0;
-                    exception.queryLength = 3;
-                    exception.device = request.device;
-                    exception.functionCode = 131;
-                    exception.type = "readHoldingRegistersException";
-                    exception.exceptionCode = 2
-                    if ((socket.readyState === "open") || (socket.readyState === "writeOnly")) { socket.write(exception.toBuffer()); }
-                }
-            });
-        }*/
         else if ((request.type === "writeHoldingRegistersRequest") && (writeHoldingRegistersCallback != null)) {
             this.stats.numTotalRequests++;
             writeHoldingRegistersCallback(request, () => {

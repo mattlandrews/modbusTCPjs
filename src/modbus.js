@@ -15,9 +15,9 @@ module.exports = function () {
     this.exceptionCode = null;
 
     function testRange (value, valueName, min, max) {
-        if (value < min) { throw new Error(valueName + ": " + value + " is less than " + min); return min; }
-        if (value > max) { throw new Error(valueName + ": " + value + " is greater than " + max); return max; }
-        return value;
+        if (value < min) { throw new Error(valueName + ": " + value + " is less than " + min); }
+        else if (value > max) { throw new Error(valueName + ": " + value + " is greater than " + max); }
+        else return value;
     }
 
     this.readHoldingRegistersRequest = function (transaction, device, readAddress, readLength) {
@@ -39,7 +39,8 @@ module.exports = function () {
         this.queryLength = (3 + (data.length * 2));
         this.device = testRange( device, "Device ID", 1, 255 );
         this.functionCode = 3;
-        this.data = new Array(data.length);
+        let dataLength = testRange(data.length, "Data Length", 1, 120);
+        this.data = new Array(dataLength);
         data.forEach((d, i) => {
             this.data[i] = testRange( d, "data element", -32768, 32767 );
         });
@@ -65,7 +66,7 @@ module.exports = function () {
         this.functionCode = 16;
         this.writeAddress = testRange( writeAddress, "Read Address", 0, 65535 );
         this.writeLength = data.length;
-        this.data = new Array(data.length);
+        this.data = testRange(new Array(data.length), "Data Length", 1, 120);
         data.forEach((d, i) => {
             this.data[i] = testRange( d, "data element", -32768, 32767 );
         });
@@ -93,17 +94,17 @@ module.exports = function () {
     this.fromBuffer = function (buffer) {
         this.transaction = buffer.readUInt16BE(0);
         this.queryLength = buffer.readUInt16BE(4);
-        this.device = buffer.readUInt8(6);
+        this.device = testRange(buffer.readUInt8(6), "Device ID", 1, 255);
         this.functionCode = buffer.readUInt8(7);
         if (this.functionCode === 3) {
             if (this.queryLength === 6) {
                 this.type = "readHoldingRegistersRequest";
                 this.readAddress = buffer.readUInt16BE(8);
-                this.readLength = buffer.readUInt16BE(10);
+                this.readLength = testRange(buffer.readUInt16BE(10), "Read Length", 1, 120);
             }
             else {
                 this.type = "readHoldingRegistersReply";
-                let dataLength = buffer.readUInt8(8);
+                let dataLength = testRange(buffer.readUInt8(8), "Data Length", 2, 240);
                 this.data = [];
                 for (let i=0; i<dataLength; i+=2) {
                     this.data.push(buffer.readInt16BE(9 + i));
@@ -124,7 +125,7 @@ module.exports = function () {
             else {
                 this.type = "writeHoldingRegistersReply";
                 this.writeAddress = buffer.readUInt16BE(8);
-                this.writeLength = buffer.readUInt16BE(10);
+                this.writeLength = testRange(buffer.readUInt16BE(10), "Write Length", 1, 120);
             }
         }
         else if (this.functionCode === 23) {

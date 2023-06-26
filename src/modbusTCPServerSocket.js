@@ -17,7 +17,7 @@ module.exports = function (socket) {
     })
 
     this.socket.on("error", (err) => {
-	if (err.code === "ECONNRESET") { this.socket.destroy(); return; }
+	    if (err.code === "ECONNRESET") { this.socket.destroy(); return; }
         throw err;
     });
 
