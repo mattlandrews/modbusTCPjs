@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Basic Src3",
+            "program": "${workspaceFolder}/src3/main.js",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
             "name": "Basic Server",
             "program": "${workspaceFolder}/basicServer.js",
             "request": "launch",
