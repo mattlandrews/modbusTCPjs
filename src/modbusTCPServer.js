@@ -11,6 +11,7 @@ module.exports = function () {
     let sockets = [];
 
     let readHoldingRegistersCallback = defaultReadHoldingRegistersCallback;
+    let writeHoldingRegistersCallback = defaultWriteHoldingRegistersCallback;
     let connectCallback = null;
     let disconnectCallback = null;
 
@@ -18,6 +19,10 @@ module.exports = function () {
     this.port = 502;
 
     function defaultReadHoldingRegistersCallback (request, callback) {
+        callback();
+    }
+
+    function defaultWriteHoldingRegistersCallback (request, callback) {
         callback();
     }
 
@@ -48,11 +53,25 @@ module.exports = function () {
         if (query.getType() === "readHoldingRegistersRequest") {
             readHoldingRegistersCallback(query, (data) => {
                 let reply;
-                if (Array.isArray(data)) { reply = modbus.readHoldingRegistersReply(query.getTransaction(), query.getDevice(), data); }
-                else { reply = modbus.readHoldingRegistersException(query.getTransaction(), query.getDevice(), 2); }
+                if (Array.isArray(data)) { reply = new modbus.readHoldingRegistersReply(query.getTransaction(), query.getDevice(), data); }
+                else { reply = new modbus.readHoldingRegistersException(query.getTransaction(), query.getDevice(), 2); }
                 if ((socket.readyState === "open") || (socket.readyState === "writeOnly")) { socket.write(reply.buffer); }
             });
         }
+        else if (query.getType() === "writeHoldingRegistersRequest") {
+            writeHoldingRegistersCallback(query, (success) => {
+                let reply;
+                if (success) { reply = new modbus.writeHoldingRegistersReply(query.getTransaction(), query.getDevice(), query.getWriteAddress(), query.getWriteLength()); }
+                else { reply = new modbus.writeHoldingRegistersException(query.getTransaction(), query.getDevice(), 2); }
+                if ((socket.readyState === "open") || (socket.readyState === "writeOnly")) { socket.write(reply.buffer); }
+            });
+        }
+    }
+
+    this.on = function (event, callback) {
+        if (typeof callback !== "function") { throw new Error("invalid callback function"); }
+        else if (event === "readHoldingRegisters") { readHoldingRegistersCallback = callback; }
+        else if (event === "writeHoldingRegisters") { writeHoldingRegistersCallback = callback; }
     }
 
     this.listen = function () {

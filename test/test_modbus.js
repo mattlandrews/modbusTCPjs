@@ -2,7 +2,7 @@
 
 let assert = require("assert");
 const MODBUS = require("../src/modbus.js");
-const NUM_DYNAMIC_TESTS = 500;
+const NUM_DYNAMIC_TESTS = 50000;
 
 describe("modbus", function () {
 
@@ -28,7 +28,7 @@ describe("modbus", function () {
 
         it ("is a valid function", function () {
             let modbus = new MODBUS();
-            assert.strictEqual(typeof modbus.modbusException, "function");
+            assert.strictEqual(typeof modbus.readHoldingRegistersException, "function");
         });
 
     });

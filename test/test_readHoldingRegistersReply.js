@@ -1,8 +1,8 @@
 "use strict";
 
 let assert = require("assert");
-const MODBUS = require("../src3/modbus.js");
-const NUM_DYNAMIC_TESTS = 500;
+const MODBUS = require("../src/modbus.js");
+const NUM_DYNAMIC_TESTS = 50000;
 
 describe("readHoldingRegistersReply", function () {
 

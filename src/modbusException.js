@@ -13,6 +13,7 @@ module.exports = class modbusException extends modbusQuery {
     setFunctionCode (functionCode) {
         if (typeof functionCode !== "number") { throw new Error("invalid function code"); }
         else if (functionCode === 131) { this.type = "readHoldingRegistersException"; }
+        else if (functionCode === 144) { this.type = "writeHoldingRegistersException"; }
         else { throw new Error("invalid function code"); }
         this.functionCode = functionCode;
         this.buffer.writeUInt8(this.functionCode, 7);

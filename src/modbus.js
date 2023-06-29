@@ -2,7 +2,10 @@
 
 const readHoldingRegistersRequest = require("./readHoldingRegistersRequest.js");
 const readHoldingRegistersReply = require("./readHoldingRegistersReply.js");
-const modbusException = require("./modbusException.js");
+const readHoldingRegistersException = require("./readHoldingRegistersException.js");
+const writeHoldingRegistersRequest = require("./writeHoldingRegistersRequest.js");
+const writeHoldingRegistersReply = require("./writeHoldingRegistersReply.js");
+const writeHoldingRegistersException = require("./writeHoldingRegistersException.js");
 
 module.exports = function () {
     
@@ -10,7 +13,13 @@ module.exports = function () {
 
     this.readHoldingRegistersReply = readHoldingRegistersReply;
 
-    this.readHoldingRegistersException = function (transaction, device, exceptionCode) { return new modbusException(transaction, device, 131, exceptionCode); }
+    this.readHoldingRegistersException = readHoldingRegistersException;
+
+    this.writeHoldingRegistersRequest = writeHoldingRegistersRequest;
+
+    this.writeHoldingRegistersReply = writeHoldingRegistersReply;
+
+    this.writeHoldingRegistersException = writeHoldingRegistersException;
 
     this.fromBuffer = function (buffer) {
         if (buffer.length < 9) { throw new Error("buffer too short for valid query"); return; }
@@ -26,8 +35,18 @@ module.exports = function () {
                 return new this.readHoldingRegistersReply(buffer.readUInt16BE(0), buffer.readUInt8(6), data);
             }
         }
+        else if (functionCode === 16) {
+            if ((queryLength % 2) !== 0) {
+                let data = [];
+                for (let i=13; i<buffer.length; i+=2) { data.push(buffer.readInt16BE(i)); }
+                return (new this.writeHoldingRegistersRequest(buffer.readUInt16BE(0), buffer.readUInt8(6), buffer.readUInt16BE(8), data));
+            }
+            else {
+                return (new this.writeHoldingRegistersReply(buffer.readUInt16BE(0), buffer.readUInt8(6), buffer.readUInt16BE(8), buffer.readUInt16BE(10)));
+            }
+        }
         else if (functionCode === 131) {
-            return this.readHoldingRegistersException(buffer.readUInt16BE(0), buffer.readUInt8(6), buffer.readUInt8(8));
+            return new this.readHoldingRegistersException(buffer.readUInt16BE(0), buffer.readUInt8(6), buffer.readUInt8(8));
         }
     }
 
