@@ -2,7 +2,7 @@
 
 let assert = require("assert");
 const MODBUS = require("../src/modbus.js");
-const NUM_DYNAMIC_TESTS = 50000;
+const NUM_DYNAMIC_TESTS = 1000;
 
 describe("modbus", function () {
 

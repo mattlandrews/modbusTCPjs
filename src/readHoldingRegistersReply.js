@@ -24,7 +24,7 @@ module.exports = class readHoldingRegistersReply extends modbusQuery {
     setDataLength (dataLength) {
         if ((typeof dataLength !== "number") || (dataLength < 1) || (dataLength > 125)) { throw new Error("invalid data length"); }
         this.dataLength = dataLength;
-        this.buffer.writeUInt8(this.dataLength, 8);
+        this.buffer.writeUInt8(this.dataLength * 2, 8);
     }
 
     getDataLength () {
@@ -41,6 +41,10 @@ module.exports = class readHoldingRegistersReply extends modbusQuery {
 
     getData () {
         return this.data;
+    }
+
+    getBuffer () {
+        return this.buffer;
     }
 
 }

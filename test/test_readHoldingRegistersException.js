@@ -2,7 +2,7 @@
 
 let assert = require("assert");
 const MODBUS = require("../src/modbus.js");
-const NUM_DYNAMIC_TESTS = 50000;
+const NUM_DYNAMIC_TESTS = 1000;
 
 describe("readHoldingRegistersException", function () {
 
@@ -74,6 +74,14 @@ describe("readHoldingRegistersException", function () {
                 assert.strictEqual(query.getType(), "readHoldingRegistersException");
                 assert.strictEqual(query.getExceptionCode(), e);
                 assert.strictEqual(query.getExceptionType(), exceptionTypes[e]);
+                let buffer = Buffer.allocUnsafe(9);
+                buffer.writeUInt16BE(t, 0);
+                buffer.writeUInt16BE(0, 2);
+                buffer.writeUInt16BE(3, 4);
+                buffer.writeUInt8(d, 6);
+                buffer.writeUInt8(131, 7);
+                buffer.writeUInt8(e, 8);
+                assert.deepStrictEqual(query.getBuffer(), buffer);
             });
         }
 

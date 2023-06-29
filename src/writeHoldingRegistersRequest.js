@@ -53,4 +53,8 @@ module.exports = class writeHoldingRegistersRequest extends modbusQuery {
         return this.data;
     }
 
+    getBuffer() {
+        return this.buffer;
+    }
+
 }

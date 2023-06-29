@@ -50,4 +50,8 @@ module.exports = class modbusException extends modbusQuery {
     getExceptionCode () {
         return this.exceptionCode;
     }
+
+    getBuffer () {
+        return this.buffer;
+    }
 }

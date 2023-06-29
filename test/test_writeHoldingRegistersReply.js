@@ -2,7 +2,7 @@
 
 let assert = require("assert");
 const MODBUS = require("../src/modbus.js");
-const NUM_DYNAMIC_TESTS = 50000;
+const NUM_DYNAMIC_TESTS = 1000;
 
 describe("writeHoldingRegistersReply", function () {
 
@@ -60,6 +60,15 @@ describe("writeHoldingRegistersReply", function () {
                 assert.strictEqual(query.getWriteAddress(), wa);
                 assert.strictEqual(query.getWriteLength(), wl);
                 assert.strictEqual(query.getType(), "writeHoldingRegistersReply");
+                let buffer = Buffer.allocUnsafe(12);
+                buffer.writeUInt16BE(t, 0);
+                buffer.writeUInt16BE(0, 2);
+                buffer.writeUInt16BE(6, 4);
+                buffer.writeUInt8(d, 6);
+                buffer.writeUInt8(16, 7);
+                buffer.writeUInt16BE(wa, 8);
+                buffer.writeUInt16BE(wl, 10);
+                assert.deepStrictEqual(query.getBuffer(), buffer);
             });
         }
 

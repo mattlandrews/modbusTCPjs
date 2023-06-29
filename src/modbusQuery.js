@@ -40,4 +40,8 @@ module.exports = class modbusQuery {
     getDevice () {
         return this.device;
     }
+
+    getBuffer () {
+        return this.buffer;
+    }
 }
