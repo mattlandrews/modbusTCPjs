@@ -1,6 +1,7 @@
 "use strict";
 
 const modbusQuery = require("./modbusQuery.js");
+const ModbusError = require("./modbusError.js");
 
 module.exports = class writeHoldingRegistersReply extends modbusQuery {
 
@@ -22,7 +23,7 @@ module.exports = class writeHoldingRegistersReply extends modbusQuery {
     }
 
     setWriteAddress (writeAddress) {
-        if ((typeof writeAddress !== "number") || (writeAddress < 0) || (writeAddress > 65535)) { throw new Error("invalid write address"); }
+        if ((typeof writeAddress !== "number") || (writeAddress < 0) || (writeAddress > 65535)) { throw new ModbusError("invalid write address"); }
         this.writeAddress = writeAddress;
         this.buffer.writeUInt16BE(this.writeAddress, 8);
     }
@@ -32,7 +33,7 @@ module.exports = class writeHoldingRegistersReply extends modbusQuery {
     }
 
     setWriteLength (writeLength) {
-        if ((typeof writeLength !== "number") || (writeLength < 1) || (writeLength > 125)) { throw new Error("invalid write address"); }
+        if ((typeof writeLength !== "number") || (writeLength < 1) || (writeLength > 125)) { throw new ModbusError("invalid write address"); }
         this.writeLength = writeLength;
         this.buffer.writeUInt16BE(this.writeLength, 10);
     }

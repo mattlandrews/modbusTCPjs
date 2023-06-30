@@ -6,9 +6,12 @@ const readHoldingRegistersException = require("./readHoldingRegistersException.j
 const writeHoldingRegistersRequest = require("./writeHoldingRegistersRequest.js");
 const writeHoldingRegistersReply = require("./writeHoldingRegistersReply.js");
 const writeHoldingRegistersException = require("./writeHoldingRegistersException.js");
+const ModbusError = require("./modbusError.js");
 
 module.exports = function () {
     
+    this.ModbusError = ModbusError;
+
     this.readHoldingRegistersRequest = readHoldingRegistersRequest;
 
     this.readHoldingRegistersReply = readHoldingRegistersReply;
@@ -22,7 +25,7 @@ module.exports = function () {
     this.writeHoldingRegistersException = writeHoldingRegistersException;
 
     this.fromBuffer = function (buffer) {
-        if (buffer.length < 9) { throw new Error("buffer too short for valid query"); return; }
+        if (buffer.length < 9) { throw new ModbusError("buffer too short for valid query"); return; }
         let queryLength = buffer.readUInt16BE(4);
         let functionCode = buffer.readUInt8(7);
         if (functionCode === 3) {
@@ -48,6 +51,12 @@ module.exports = function () {
         else if (functionCode === 131) {
             return new this.readHoldingRegistersException(buffer.readUInt16BE(0), buffer.readUInt8(6), buffer.readUInt8(8));
         }
+        else if (functionCode === 144) {
+            return new this.writeHoldingRegistersException(buffer.readUInt16BE(0), buffer.readUInt8(6), buffer.readUInt8(8));
+        }
+        else {
+            throw new ModbusError("invalid function code");
+        }        
     }
 
 }

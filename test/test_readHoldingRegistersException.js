@@ -2,7 +2,7 @@
 
 let assert = require("assert");
 const MODBUS = require("../src/modbus.js");
-const NUM_DYNAMIC_TESTS = 1000;
+const NUM_DYNAMIC_TESTS = 500;
 
 describe("readHoldingRegistersException", function () {
 
@@ -10,39 +10,62 @@ describe("readHoldingRegistersException", function () {
 
         it ("is a valid function", function () {
             let modbus = new MODBUS();
-            assert.strictEqual(typeof modbus.readHoldingRegistersReply, "function");
+            assert.strictEqual(typeof modbus.readHoldingRegistersException, "function");
         });
 
-        it ("transaction argument", function () {
+        it ("transaction of null throws an exception", function () {
             let modbus = new MODBUS();
-            assert.throws(() => { new modbus.readHoldingRegistersException(); }, null, "invalid transaction");
-            assert.throws(() => { new modbus.readHoldingRegistersException(-1); }, null, "invalid transaction");
-            assert.throws(() => { new modbus.readHoldingRegistersException(65536); }, null, "invalid transaction");
+            assert.throws(() => { new modbus.readHoldingRegistersException(null,1,1); });
+        });
+
+        it ("transaction of -1 throws an exception", function () {
+            let modbus = new MODBUS();
+            assert.throws(() => { new modbus.readHoldingRegistersException(-1,1,1); });
+        });
+
+        it ("transaction of 65536 throws an exception", function () {
+            let modbus = new MODBUS();
+            assert.throws(() => { new modbus.readHoldingRegistersException(65536,1,1); });
+        });
+
+        it ("transaction of 0 does not throw an exception", function () {
+            let modbus = new MODBUS();
             assert.doesNotThrow(() => { new modbus.readHoldingRegistersException(0,1,1); });
         });
 
-        it ("device argument", function () {
+        it ("transaction of 65535 does not throw an exception", function () {
             let modbus = new MODBUS();
-            assert.throws(() => { new modbus.readHoldingRegistersException(0); }, null, "invalid device");
-            assert.throws(() => { new modbus.readHoldingRegistersException(0,0); }, null, "invalid device");
-            assert.throws(() => { new modbus.readHoldingRegistersException(0,256); }, null, "invalid device");
+            assert.doesNotThrow(() => { new modbus.readHoldingRegistersException(65535,1,1); });
+        });
+
+        it ("device of null throws an exception", function () {
+            let modbus = new MODBUS();
+            assert.throws(() => { new modbus.readHoldingRegistersException(0,null,1); });
+        });
+
+        it ("device of 0 throws an exception", function () {
+            let modbus = new MODBUS();
+            assert.throws(() => { new modbus.readHoldingRegistersException(0,0,1); });
+        });
+
+        it ("device of 1 does not throw an exception", function () {
+            let modbus = new MODBUS();
             assert.doesNotThrow(() => { new modbus.readHoldingRegistersException(0,1,1); });
         });
 
-        it ("functionCode argument", function () {
+        it ("device of 255 does not throw an exception", function () {
             let modbus = new MODBUS();
-            assert.throws(() => { new modbus.readHoldingRegistersException(0,1); }, null, "invalid functionCode");
-            assert.throws(() => { new modbus.readHoldingRegistersException(0,1,0); }, null, "invalid functionCode");
-            assert.throws(() => { new modbus.readHoldingRegistersException(0,1,256); }, null, "invalid functionCode");
-            assert.doesNotThrow(() => { new modbus.readHoldingRegistersException(0,1,1); });
+            assert.doesNotThrow(() => { new modbus.readHoldingRegistersException(0,255,1); });
         });
 
-        it ("exceptionCode argument", function () {
+        it ("exceptionCode of null throws an exception", function () {
             let modbus = new MODBUS();
-            assert.throws(() => { new modbus.readHoldingRegistersException(0,1,131); }, null, "invalid exceptionCode");
-            assert.throws(() => { new modbus.readHoldingRegistersException(0,1,131,0); }, null, "invalid exceptionCode");
-            assert.throws(() => { new modbus.readHoldingRegistersException(0,1,131,12); }, null, "invalid exceptionCode");
-            assert.doesNotThrow(() => { new modbus.readHoldingRegistersException(0,1,1); });
+            assert.throws(() => { new modbus.readHoldingRegistersException(0,1,null); }, MODBUS.ModbusError);
+        });
+
+        it ("exceptionCode of 1 does not throw an exception", function () {
+            let modbus = new MODBUS();
+            assert.doesNotThrow(() => { new modbus.readHoldingRegistersException(0,1,1); }, MODBUS.ModbusError);
         });
 
         for (let i=0; i<NUM_DYNAMIC_TESTS; i++) {

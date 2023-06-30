@@ -1,9 +1,11 @@
 "use strict";
 
+const ModbusError = require("./modbusError.js");
+
 module.exports = class modbusQuery {
 
     constructor (transaction, queryLength, device) {
-        if ((typeof queryLength !== "number") || (queryLength < 1) || (transaction > 65535)) { throw new Error("invalid queryLength"); }
+        if ((typeof queryLength !== "number") || (queryLength < 1) || (transaction > 65535)) { throw new ModbusError("invalid queryLength"); }
         this.buffer = Buffer.allocUnsafe(6 + queryLength);
         this.setQueryLength(queryLength);
         this.setTransaction(transaction);
@@ -12,7 +14,7 @@ module.exports = class modbusQuery {
     }
 
     setTransaction (transaction) {
-        if ((typeof transaction !== "number") || (transaction < 0) || (transaction > 65535)) { throw new Error("invalid transaction"); }
+        if ((typeof transaction !== "number") || (transaction < 0) || (transaction > 65535)) { throw new ModbusError("invalid transaction"); }
         this.transaction = transaction;
         this.buffer.writeUInt16BE(this.transaction, 0);
     }
@@ -22,7 +24,7 @@ module.exports = class modbusQuery {
     }
 
     setQueryLength (queryLength) {
-        if ((typeof queryLength !== "number") || (queryLength < 1) || (queryLength > 65535)) { throw new Error("invalid queryLength"); }
+        if ((typeof queryLength !== "number") || (queryLength < 1) || (queryLength > 65535)) { throw new ModbusError("invalid queryLength"); }
         this.queryLength = queryLength;
         this.buffer.writeUInt16BE(this.queryLength, 4);
     }
@@ -32,7 +34,7 @@ module.exports = class modbusQuery {
     }
 
     setDevice (device) {
-        if ((typeof device !== "number") || (device < 1) || (device > 255)) { throw new Error("invalid device"); }
+        if ((typeof device !== "number") || (device < 1) || (device > 255)) { throw new ModbusError("invalid device"); }
         this.device = device;
         this.buffer.writeUInt8(this.device, 6);
     }
