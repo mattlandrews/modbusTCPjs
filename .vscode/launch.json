@@ -5,8 +5,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Basic Src3",
-            "program": "${workspaceFolder}/src3/main.js",
+            "name": "Advanced Server",
+            "program": "${workspaceFolder}/advancedServer.js",
             "request": "launch",
             "skipFiles": [
                 "<node_internals>/**"

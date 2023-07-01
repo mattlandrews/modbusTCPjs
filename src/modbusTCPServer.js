@@ -8,7 +8,6 @@ module.exports = function () {
 
     let server = new Server();
     let modbus = new MODBUS();
-    let sockets = [];
 
     let readHoldingRegistersCallback = defaultReadHoldingRegistersCallback;
     let writeHoldingRegistersCallback = defaultWriteHoldingRegistersCallback;
@@ -17,6 +16,21 @@ module.exports = function () {
 
     this.host = "127.0.0.1";
     this.port = 502;
+    this.sockets = [];
+    this.stats = {
+        public: {
+            numberOfConnections: 0,
+            totalNumberOfRequests: 0,
+            totalNumberOfErrors: 0,
+            numberOfRequestsPerSecond: 0,
+            totalNumberOfReadHoldingRegistersRequests: 0,
+            totalNumberOfWriteHoldingRegistersRequests: 0
+        },
+        private: {
+            dNumberOfRequests: 0
+        }
+    };
+    this.errors = [];
 
     function defaultReadHoldingRegistersCallback (request, callback) {
         callback();
@@ -35,12 +49,12 @@ module.exports = function () {
             else { throw err; } });
         socket.on("data", serverData.bind(this, socket));
         socket.on("end", serverDisconnected.bind(this, socket));
-        sockets.push(socket);
+        this.sockets.push(socket);
         if (typeof connectCallback === "function") { connectCallback(socket); }
     }
 
     function serverDisconnected (socket) {
-        sockets = sockets.filter((d)=>{
+        this.sockets = this.sockets.filter((d)=>{
             return (d.remoteAddress !== socket.remoteAddress)
                 || (d.remotePort !== socket.remotePort)
                 || (d.localAddress !== socket.localAddress);
@@ -49,23 +63,39 @@ module.exports = function () {
     }
 
     function serverData (socket, buffer) {
-        let query = modbus.fromBuffer(buffer);
-        if (query.getType() === "readHoldingRegistersRequest") {
-            readHoldingRegistersCallback(query, (data) => {
-                let reply;
-                if (Array.isArray(data)) { reply = new modbus.readHoldingRegistersReply(query.getTransaction(), query.getDevice(), data); }
-                else { reply = new modbus.readHoldingRegistersException(query.getTransaction(), query.getDevice(), 2); }
-                if ((socket.readyState === "open") || (socket.readyState === "writeOnly")) { socket.write(reply.buffer); }
-            });
+        try {
+            let query = modbus.fromBuffer(buffer);
+            if (query.getType() === "readHoldingRegistersRequest") {
+                this.stats.public.totalNumberOfRequests++;
+                this.stats.public.totalNumberOfReadHoldingRegistersRequests++;
+                readHoldingRegistersCallback(query, (data) => {
+                    let reply;
+                    if (Array.isArray(data)) { reply = new modbus.readHoldingRegistersReply(query.getTransaction(), query.getDevice(), data); }
+                    else { reply = new modbus.readHoldingRegistersException(query.getTransaction(), query.getDevice(), 2); }
+                    if ((socket.readyState === "open") || (socket.readyState === "writeOnly")) { socket.write(reply.buffer); }
+                });
+            }
+            else if (query.getType() === "writeHoldingRegistersRequest") {
+                this.stats.public.totalNumberOfRequests++;
+                this.stats.public.totalNumberOfWriteHoldingRegistersRequests++;
+                writeHoldingRegistersCallback(query, (success) => {
+                    let reply;
+                    if (success) { reply = new modbus.writeHoldingRegistersReply(query.getTransaction(), query.getDevice(), query.getWriteAddress(), query.getWriteLength()); }
+                    else { reply = new modbus.writeHoldingRegistersException(query.getTransaction(), query.getDevice(), 2); }
+                    if ((socket.readyState === "open") || (socket.readyState === "writeOnly")) { socket.write(reply.buffer); }
+                });
+            }
         }
-        else if (query.getType() === "writeHoldingRegistersRequest") {
-            writeHoldingRegistersCallback(query, (success) => {
-                let reply;
-                if (success) { reply = new modbus.writeHoldingRegistersReply(query.getTransaction(), query.getDevice(), query.getWriteAddress(), query.getWriteLength()); }
-                else { reply = new modbus.writeHoldingRegistersException(query.getTransaction(), query.getDevice(), 2); }
-                if ((socket.readyState === "open") || (socket.readyState === "writeOnly")) { socket.write(reply.buffer); }
-            });
+        catch (err) {
+            this.stats.public.totalNumberOfErrors++;
+            this.errors.push(err);
         }
+    }
+
+    function calculateStats () {
+        this.stats.public.numberOfConnections = this.sockets.length;
+        this.stats.public.numberOfRequestsPerSecond = (this.stats.public.totalNumberOfRequests - this.stats.private.dNumberOfRequests);
+        this.stats.private.dNumberOfRequests = this.stats.public.totalNumberOfRequests;
     }
 
     this.on = function (event, callback) {
@@ -75,6 +105,7 @@ module.exports = function () {
     }
 
     this.listen = function () {
+        setInterval(calculateStats.bind(this), 1000);
         return new Promise((resolve, reject) => {
             server.on("error", reject);
             server.listen({ port: this.port, host: this.host }, () => {
@@ -88,6 +119,14 @@ module.exports = function () {
 
     this.getConnections = function () {
         return sockets;
+    }
+
+    this.getStats = function () {
+        return this.stats.public;
+    }
+
+    this.getErrors = function () {
+        return this.errors;
     }
 
     return this;

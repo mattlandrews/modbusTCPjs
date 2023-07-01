@@ -13,13 +13,6 @@ describe("writeHoldingRegistersRequest", function () {
             assert.strictEqual(typeof modbus.writeHoldingRegistersRequest, "function");
         });
 
-
-
-        it ("is a valid function", function () {
-            let modbus = new MODBUS();
-            assert.strictEqual(typeof modbus.writeHoldingRegistersRequest, "function");
-        });
-
         it ("transaction of null throws an exception", () => {
             let modbus = new MODBUS();
             assert.throws(() => { new modbus.writeHoldingRegistersRequest(null, 1, 0, [0]); }, MODBUS.ModbusError);
