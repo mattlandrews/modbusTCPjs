@@ -19,12 +19,14 @@ module.exports = function () {
     this.sockets = [];
     this.stats = {
         public: {
-            numberOfConnections: 0,
+            numberOfActiveConnections: 0,
             totalNumberOfRequests: 0,
-            totalNumberOfErrors: 0,
             numberOfRequestsPerSecond: 0,
             totalNumberOfReadHoldingRegistersRequests: 0,
-            totalNumberOfWriteHoldingRegistersRequests: 0
+            totalNumberOfWriteHoldingRegistersRequests: 0,
+            totalNumberOfConnectionEvents: 0,
+            totalNumberOfDisconnectionEvents: 0,
+            totalNumberOfErrors: 0,
         },
         private: {
             dNumberOfRequests: 0
@@ -50,6 +52,7 @@ module.exports = function () {
         socket.on("data", serverData.bind(this, socket));
         socket.on("end", serverDisconnected.bind(this, socket));
         this.sockets.push(socket);
+        this.stats.public.totalNumberOfConnectionEvents++;
         if (typeof connectCallback === "function") { connectCallback(socket); }
     }
 
@@ -59,6 +62,7 @@ module.exports = function () {
                 || (d.remotePort !== socket.remotePort)
                 || (d.localAddress !== socket.localAddress);
         });
+        this.stats.public.totalNumberOfDisconnectionEvents++;
         if (typeof disconnectCallback === "function") { disconnectCallback(socket); }
     }
 
@@ -93,7 +97,7 @@ module.exports = function () {
     }
 
     function calculateStats () {
-        this.stats.public.numberOfConnections = this.sockets.length;
+        this.stats.public.numberOfActiveConnections = this.sockets.length;
         this.stats.public.numberOfRequestsPerSecond = (this.stats.public.totalNumberOfRequests - this.stats.private.dNumberOfRequests);
         this.stats.private.dNumberOfRequests = this.stats.public.totalNumberOfRequests;
     }
