@@ -14,8 +14,8 @@
             "type": "node"
         },
         {
-            "name": "Basic Server",
-            "program": "${workspaceFolder}/basicServer.js",
+            "name": "Basic Client",
+            "program": "${workspaceFolder}/basicClient.js",
             "request": "launch",
             "skipFiles": [
                 "<node_internals>/**"
