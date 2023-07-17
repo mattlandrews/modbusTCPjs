@@ -11,10 +11,12 @@ let transaction = 0;
 
 function query_00 () {
     if (! mbClient.awaitingReply) {
-        mbClient.readHoldingRegisters(transaction++, 1, 0, 3)
-            .then((data) => { console.log(data); })
+        transaction = (transaction < 65535) ? (transaction + 1) : 0;
+        mbClient.readHoldingRegisters(transaction, 1, 0, 3)
+            .then((data) => { if (data != null) { query_00(); } })
             .catch((err) => { console.log(err); });
     }
 }
 
-setInterval(query_00, 100);
+//setInterval(query_00, 100);
+query_00();

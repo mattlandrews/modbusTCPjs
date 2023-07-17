@@ -6,12 +6,10 @@ const readHoldingRegistersException = require("./readHoldingRegistersException.j
 const writeHoldingRegistersRequest = require("./writeHoldingRegistersRequest.js");
 const writeHoldingRegistersReply = require("./writeHoldingRegistersReply.js");
 const writeHoldingRegistersException = require("./writeHoldingRegistersException.js");
-const ModbusError = require("./modbusError.js");
+const { ModbusError } = require("./modbusError.js");
 
 module.exports = function () {
     
-    this.ModbusError = ModbusError;
-
     this.readHoldingRegistersRequest = readHoldingRegistersRequest;
 
     this.readHoldingRegistersReply = readHoldingRegistersReply;

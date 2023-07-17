@@ -1,7 +1,7 @@
 "use strict";
 
 const modbusQuery = require("./modbusQuery.js");
-const modbusError = require("./modbusError.js");
+const { ModbusError } = require("./modbusError.js");
 
 module.exports = class modbusException extends modbusQuery {
 
@@ -12,10 +12,10 @@ module.exports = class modbusException extends modbusQuery {
     }
 
     setFunctionCode (functionCode) {
-        if (typeof functionCode !== "number") { throw new modbusError("invalid function code"); }
+        if (typeof functionCode !== "number") { throw new ModbusError("invalid function code"); }
         else if (functionCode === 131) { this.type = "readHoldingRegistersException"; }
         else if (functionCode === 144) { this.type = "writeHoldingRegistersException"; }
-        else { throw new modbusError("invalid function code"); }
+        else { throw new ModbusError("invalid function code"); }
         this.functionCode = functionCode;
         this.buffer.writeUInt8(this.functionCode, 7);
     }
@@ -33,7 +33,7 @@ module.exports = class modbusException extends modbusQuery {
     }
 
     setExceptionCode (exceptionCode) {
-        if (typeof exceptionCode !== "number") { throw new modbusError("invalid exception code"); }
+        if (typeof exceptionCode !== "number") { throw new ModbusError("invalid exception code"); }
         else if (exceptionCode === 1) { this.exceptionType = "illegal function"; }
         else if (exceptionCode === 2) { this.exceptionType = "illegal data address"; }
         else if (exceptionCode === 3) { this.exceptionType = "illegal data value"; }
@@ -43,7 +43,7 @@ module.exports = class modbusException extends modbusQuery {
         else if (exceptionCode === 8) { this.exceptionType = "memory parity error"; }
         else if (exceptionCode === 10) { this.exceptionType = "gateway path unavailable"; }
         else if (exceptionCode === 11) { this.exceptionType = "gateway target failed to respond"; }
-        else { throw new modbusError("invalid exception code"); }
+        else { throw new ModbusError("invalid exception code"); }
         this.exceptionCode = exceptionCode;
         this.buffer.writeUint8(this.exceptionCode, 8);
     }

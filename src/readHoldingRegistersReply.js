@@ -1,7 +1,7 @@
 "use strict";
 
 const modbusQuery = require("./modbusQuery.js");
-const modbusError = require("./modbusError.js");
+const { ModbusError } = require("./modbusError.js");
 
 module.exports = class readHoldingRegistersReply extends modbusQuery {
 
@@ -23,7 +23,7 @@ module.exports = class readHoldingRegistersReply extends modbusQuery {
     }
 
     setDataLength (dataLength) {
-        if ((typeof dataLength !== "number") || (dataLength < 1) || (dataLength > 125)) { throw new modbusError("invalid data length"); }
+        if ((typeof dataLength !== "number") || (dataLength < 1) || (dataLength > 125)) { throw new ModbusError("invalid data length"); }
         this.dataLength = dataLength;
         this.buffer.writeUInt8(this.dataLength * 2, 8);
     }
@@ -33,7 +33,7 @@ module.exports = class readHoldingRegistersReply extends modbusQuery {
     }
 
     setData (data) {
-        if ((!Array.isArray(data)) || (data.length < 0) || (data.length > 125)) { throw new modbusError("invalid data"); }
+        if ((!Array.isArray(data)) || (data.length < 0) || (data.length > 125)) { throw new ModbusError("invalid data"); }
         this.data = data;
         this.data.forEach((d,i) => {
             this.buffer.writeInt16BE(d, (9 + (i * 2)));

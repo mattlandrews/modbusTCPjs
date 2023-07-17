@@ -1,7 +1,7 @@
 "use strict";
 
 const modbusQuery = require("./modbusQuery.js");
-const ModbusError = require("./modbusError.js");
+const { ModbusError } = require("./modbusError.js");
 
 module.exports = class writeHoldingRegistersRequest extends modbusQuery {
 

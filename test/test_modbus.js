@@ -2,6 +2,7 @@
 
 let assert = require("assert");
 const MODBUS = require("../src/modbus.js");
+const { ModbusError, ModbusTransactionError, ModbusQueryLengthError, ModbusDeviceError } = require("../src/modbusError.js");
 const NUM_DYNAMIC_TESTS = 500;
 
 describe("modbus", function () {
@@ -66,21 +67,21 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,6,0,3,0,100,0,10]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusDeviceError);
         });
 
         it ("readLength of 0 throws an exception", function (){
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,1,0,0,0,6,1,3,0,101,0,0]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("readLength of 126 throws an exception", function (){
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,2,0,0,0,6,1,3,0,102,0,126]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         for (let i=0; i<NUM_DYNAMIC_TESTS; i++) {
@@ -111,14 +112,14 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,5,0,3,2,0,0]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusDeviceError);
         });
 
         it ("dataLength of 0 throws an exception", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,1,0,0,0,3,1,3,0]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("dataLength of 252 throws an exception", function () {
@@ -127,7 +128,7 @@ describe("modbus", function () {
             for (let i=0; i<121; i++) { array.push(0); array.push(0); }
             let buffer = Buffer.from(array);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         for (let i=0; i<NUM_DYNAMIC_TESTS; i++) {
@@ -164,7 +165,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,19,131,0]);
             let query;
-            assert.throws(() => { query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(() => { query = modbus.fromBuffer(buffer); }, ModbusError);
         });
         
         it ("exceptionCode 1 (illegal function)", function () {
@@ -249,7 +250,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,131,7]);
             let query;
-            assert.throws(() => { query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(() => { query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("exceptionCode 8 (memory parity error)", function () {
@@ -269,7 +270,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,131,9]);
             let query;
-            assert.throws(() => { query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(() => { query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("exceptionCode 10 (gateway path unavailable)", function () {
@@ -302,7 +303,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,131,12]);
             let query;
-            assert.throws(() => { query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(() => { query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
     });
@@ -313,35 +314,35 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,9,0,16,0,100,0,1,2,0,0]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusDeviceError);
         });
 
         it ("writeLength of 0 throws an exception", function (){
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,9,1,16,0,100,0,0,2,0,0]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("writeLength of 126 throws an exception", function (){
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,9,1,16,0,100,0,126,2,0,0]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("dataLength of 0 throws an exception", function (){
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,7,1,16,0,100,0,1,0]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("dataLength of 252 throws an exception", function (){
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,7,1,16,0,100,0,1,252]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         for (let i=0; i<NUM_DYNAMIC_TESTS; i++) {
@@ -383,21 +384,21 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,6,0,16,0,0,0,1]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusDeviceError);
         });
 
         it ("writeLength of 0 throws an exception", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,6,1,16,0,0,0,0]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("writeLength of 126 throws an exception", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,0,0,0,0,6,1,16,0,0,0,126]);
             let query;
-            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(()=>{ query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         for (let i=0; i<NUM_DYNAMIC_TESTS; i++) {
@@ -434,7 +435,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,19,144,0]);
             let query;
-            assert.throws(() => { query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(() => { query = modbus.fromBuffer(buffer); }, ModbusError);
         });
         
         it ("exceptionCode 1 (illegal function)", function () {
@@ -519,7 +520,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,144,7]);
             let query;
-            assert.throws(() => { query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(() => { query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("exceptionCode 8 (memory parity error)", function () {
@@ -539,7 +540,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,144,9]);
             let query;
-            assert.throws(() => { query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(() => { query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
         it ("exceptionCode 10 (gateway path unavailable)", function () {
@@ -572,7 +573,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,144,12]);
             let query;
-            assert.throws(() => { query = modbus.fromBuffer(buffer); }, modbus.ModbusError);
+            assert.throws(() => { query = modbus.fromBuffer(buffer); }, ModbusError);
         });
 
     });
