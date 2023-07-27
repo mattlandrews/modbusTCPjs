@@ -2,7 +2,6 @@
 
 let assert = require("assert");
 const MODBUS = require("../src/modbus.js");
-const NUM_DYNAMIC_TESTS = 500;
 
 describe("writeHoldingRegistersReply", function () {
 
@@ -108,7 +107,7 @@ describe("writeHoldingRegistersReply", function () {
             assert.doesNotThrow(() => { new modbus.readHoldingRegistersRequest(0, 1, 0, 125); });
         });
 
-        for (let i=0; i<NUM_DYNAMIC_TESTS; i++) {
+        for (let i=0; i<global.NUM_DYNAMIC_TESTS; i++) {
             let t = Math.floor(Math.random() * 65536);
             let d = Math.floor(Math.random() * 255) + 1;
             let wa = Math.floor(Math.random() * 65536);

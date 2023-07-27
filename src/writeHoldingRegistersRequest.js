@@ -1,16 +1,18 @@
 "use strict";
 
 const modbusQuery = require("./modbusQuery.js");
-const { ModbusError } = require("./modbusError.js");
+const { ModbusWriteAddressError, ModbusWriteLengthError } = require("./modbusError.js");
 
 module.exports = class writeHoldingRegistersRequest extends modbusQuery {
 
-    constructor (transaction, device, writeAddress, data) {
+    constructor (transaction, device, writeAddress, data, writeLength, dataLength) {
         super(transaction, (7 + (data.length * 2)), device);
         this.functionCode = 16;
         this.type = "writeHoldingRegistersRequest";
         this.buffer.writeUInt8(this.functionCode, 7);
         this.setWriteAddress(writeAddress);
+        if ((typeof writeLength === "number") && ((writeLength < 1) || (writeLength > 125))) { throw new ModbusWriteLengthError("invalid write length"); }
+        if ((typeof dataLength === "number") && ((dataLength < 2) || (dataLength > 250))) { throw new ModbusWriteLengthError("invalid data length"); }
         this.setData(data);
     }
 
@@ -23,7 +25,7 @@ module.exports = class writeHoldingRegistersRequest extends modbusQuery {
     }
 
     setWriteAddress (writeAddress) {
-        if((typeof writeAddress !== "number") || (writeAddress < 0) || (writeAddress > 65535)) { throw new ModbusError("invalid write address"); }
+        if((typeof writeAddress !== "number") || (writeAddress < 0) || (writeAddress > 65535)) { throw new ModbusWriteAddressError("invalid write address"); }
         this.writeAddress = writeAddress;
         this.buffer.writeUInt16BE(this.writeAddress, 8);
     }
@@ -33,17 +35,19 @@ module.exports = class writeHoldingRegistersRequest extends modbusQuery {
     }
 
     getWriteLength () {
-        return this.data.length;
+        return this.writeLength;
     }
 
     getDataLength () {
-        return this.data.length * 2;
+        return this.dataLength;
     }
 
     setData (data) {
-        if ((!Array.isArray(data)) || (data.length < 1) || (data.length > 125)) { throw new ModbusError("invalid write length"); }
-        this.buffer.writeUInt16BE(data.length, 10);
-        this.buffer.writeUInt8(data.length * 2, 12);
+        if ((!Array.isArray(data)) || (data.length < 1) || (data.length > 125)) { throw new ModbusWriteLengthError("invalid write length"); }
+        this.writeLength = data.length;
+        this.buffer.writeUInt16BE(this.writeLength, 10);
+        this.dataLength = data.length * 2;
+        this.buffer.writeUInt8(this.dataLength, 12);
         this.data = data;
         this.data.forEach((d,i) => {
             this.buffer.writeInt16BE(d, (13 + (i * 2)));

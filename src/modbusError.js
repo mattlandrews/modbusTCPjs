@@ -30,6 +30,16 @@ class ModbusQueryLengthError extends Error {
 
 }
 
+class ModbusFunctionError extends Error {
+
+    constructor (message) {
+        super(message);
+        this.name = "ModbusFunctionError";
+        this.time = new Date();
+    }
+
+}
+
 class ModbusDeviceError extends Error {
     
     constructor (message) {
@@ -60,4 +70,23 @@ class ModbusReadLengthError extends Error {
 
 }
 
-module.exports = { ModbusError, ModbusTransactionError, ModbusQueryLengthError, ModbusDeviceError, ModbusReadAddressError, ModbusReadLengthError };
+class ModbusWriteAddressError extends Error {
+    
+    constructor (message) {
+        super(message);
+        this.name = "ModbusWriteAddressError";
+        this.time = new Date();
+    }
+
+}
+
+class ModbusWriteLengthError extends Error {
+
+    constructor (message) {
+        super(message);
+        this.name = "ModbusWriteLengthError";
+        this.time = new Date();
+    }
+}
+
+module.exports = { ModbusError, ModbusTransactionError, ModbusQueryLengthError, ModbusDeviceError, ModbusFunctionError, ModbusReadAddressError, ModbusReadLengthError, ModbusWriteAddressError, ModbusWriteLengthError };

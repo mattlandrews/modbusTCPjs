@@ -2,7 +2,6 @@
 
 let assert = require("assert");
 const MODBUS = require("../src/modbus.js");
-const NUM_DYNAMIC_TESTS = 500;
 
 describe("readHoldingRegistersException", function () {
 
@@ -68,7 +67,7 @@ describe("readHoldingRegistersException", function () {
             assert.doesNotThrow(() => { new modbus.readHoldingRegistersException(0,1,1); }, MODBUS.ModbusError);
         });
 
-        for (let i=0; i<NUM_DYNAMIC_TESTS; i++) {
+        for (let i=0; i<global.NUM_DYNAMIC_TESTS; i++) {
             let t = Math.floor(Math.random() * 65536);
             let d = Math.floor(Math.random() * 255) + 1;
             let exceptionCodes = [1,2,3,4,5,6,8,10,11];

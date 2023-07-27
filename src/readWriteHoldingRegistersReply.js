@@ -1,15 +1,16 @@
 "use strict";
 
 const modbusQuery = require("./modbusQuery.js");
-const { ModbusReadLengthError } = require("./modbusError.js");
+const { ModbusReadLengthError, ModbusWriteLengthError } = require("./modbusError.js");
 
-module.exports = class readHoldingRegistersReply extends modbusQuery {
+module.exports = class readWriteHoldingRegistersReply extends modbusQuery {
 
-    constructor (transaction, device, data) {
+    constructor (transaction, device, data, dataLength) {
         super(transaction, (3 + (data.length * 2)), device);
-        this.functionCode = 3;
-        this.type = "readHoldingRegistersReply";
+        this.functionCode = 23;
+        this.type = "readWriteHoldingRegistersReply";
         this.buffer.writeUInt8(this.functionCode, 7);
+        if ((typeof dataLength === "number") && ((dataLength < 2) || (dataLength > 250))) { throw new ModbusWriteLengthError("invalid data length"); }
         this.setDataLength(data.length);
         this.setData(data);
     }

@@ -5,7 +5,7 @@ const { ModbusTransactionError, ModbusQueryLengthError, ModbusDeviceError } = re
 module.exports = class modbusQuery {
 
     constructor (transaction, queryLength, device) {
-        if ((typeof queryLength !== "number") || (queryLength < 1) || (transaction > 65535)) { throw new ModbusQueryLengthError("invalid queryLength"); }
+        if ((typeof queryLength !== "number") || (queryLength < 1) || (queryLength > 65535)) { throw new ModbusQueryLengthError("invalid queryLength"); }
         this.buffer = Buffer.allocUnsafe(6 + queryLength);
         this.setQueryLength(queryLength);
         this.setTransaction(transaction);
