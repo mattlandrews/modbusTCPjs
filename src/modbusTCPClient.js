@@ -27,12 +27,12 @@ module.exports = function () {
                     this.state = "connected";
                     this.socket.listeners("error").forEach((d) => { this.socket.off("error", d); });
                     this.socket.listeners("data").forEach((d) => { this.socket.off("data", d); });
-                    let reply = this.modbus.fromBuffer(buffer);
+                    let reply = this.modbus.replyFromBuffer(buffer);
                     resolve(reply.data);
                 });
                 this.socket.connect(this.port, this.host, () => {
                     let query = new this.modbus.readHoldingRegistersRequest(transaction, device, readAddress, readLength);
-                    this.socket.write(query.getBuffer());
+                    this.socket.write(query.requestFromBuffer());
                 });
             }
             else if (this.state === "connected") {

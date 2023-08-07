@@ -68,7 +68,7 @@ module.exports = function () {
 
     function serverData (socket, buffer) {
         try {
-            let query = modbus.fromBuffer(buffer);
+            let query = modbus.requestFromBuffer(buffer);
             if (query.getType() === "readHoldingRegistersRequest") {
                 this.stats.public.totalNumberOfRequests++;
                 this.stats.public.totalNumberOfReadHoldingRegistersRequests++;
