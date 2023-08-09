@@ -14,8 +14,8 @@
             "type": "node"
         },
         {
-            "name": "Basic Client",
-            "program": "${workspaceFolder}/basicClient.js",
+            "name": "Advanced Client",
+            "program": "${workspaceFolder}/advancedClient.js",
             "request": "launch",
             "skipFiles": [
                 "<node_internals>/**"

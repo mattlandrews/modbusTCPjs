@@ -186,19 +186,19 @@ describe("modbus", function () {
 
     });
 
-    describe("#exceptionFromBuffer() - readHoldingRegistersException", function () {
+    describe("#replyFromBuffer() - readHoldingRegistersException", function () {
 
         it ("exceptionCode 0 throws an exception", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,19,131,0]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
         
         it ("exceptionCode 1 (illegal function)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,1,0,0,0,3,1,131,1]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 1);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 1);
@@ -211,7 +211,7 @@ describe("modbus", function () {
         it ("exceptionCode 2 (illegal data address)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,2,0,0,0,3,3,131,2]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 2);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 3);
@@ -224,7 +224,7 @@ describe("modbus", function () {
         it ("exceptionCode 3 (illegal data value)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,3,0,0,0,3,5,131,3]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 3);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 5);
@@ -237,7 +237,7 @@ describe("modbus", function () {
         it ("exceptionCode 4 (slave device failure)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,4,0,0,0,3,7,131,4]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 4);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 7);
@@ -250,7 +250,7 @@ describe("modbus", function () {
         it ("exceptionCode 5 (acknowledge)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,5,0,0,0,3,9,131,5]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 5);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 9);
@@ -263,7 +263,7 @@ describe("modbus", function () {
         it ("exceptionCode 6 (slave device busy)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,6,0,0,0,3,11,131,6]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 6);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 11);
@@ -277,13 +277,13 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,131,7]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
 
         it ("exceptionCode 8 (memory parity error)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,7,0,0,0,3,13,131,8]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 7);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 13);
@@ -297,13 +297,13 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,131,9]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
 
         it ("exceptionCode 10 (gateway path unavailable)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,8,0,0,0,3,15,131,10]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 8);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 15);
@@ -316,7 +316,7 @@ describe("modbus", function () {
         it ("exceptionCode 11 (gateway target failed to respond)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,17,131,11]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 9);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 17);
@@ -330,7 +330,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,131,12]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
 
     });
@@ -456,19 +456,19 @@ describe("modbus", function () {
 
     });
 
-    describe("#exceptionFromBuffer() - writeHoldingRegistersException", function () {
+    describe("#replyFromBuffer() - writeHoldingRegistersException", function () {
 
         it ("exceptionCode 0 throws an exception", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,19,144,0]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
         
         it ("exceptionCode 1 (illegal function)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,1,0,0,0,3,1,144,1]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 1);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 1);
@@ -481,7 +481,7 @@ describe("modbus", function () {
         it ("exceptionCode 2 (illegal data address)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,2,0,0,0,3,3,144,2]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 2);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 3);
@@ -494,7 +494,7 @@ describe("modbus", function () {
         it ("exceptionCode 3 (illegal data value)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,3,0,0,0,3,5,144,3]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 3);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 5);
@@ -507,7 +507,7 @@ describe("modbus", function () {
         it ("exceptionCode 4 (slave device failure)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,4,0,0,0,3,7,144,4]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 4);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 7);
@@ -520,7 +520,7 @@ describe("modbus", function () {
         it ("exceptionCode 5 (acknowledge)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,5,0,0,0,3,9,144,5]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 5);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 9);
@@ -533,7 +533,7 @@ describe("modbus", function () {
         it ("exceptionCode 6 (slave device busy)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,6,0,0,0,3,11,144,6]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 6);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 11);
@@ -547,13 +547,13 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,144,7]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
 
         it ("exceptionCode 8 (memory parity error)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,7,0,0,0,3,13,144,8]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 7);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 13);
@@ -567,13 +567,13 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,144,9]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
 
         it ("exceptionCode 10 (gateway path unavailable)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,8,0,0,0,3,15,144,10]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 8);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 15);
@@ -586,7 +586,7 @@ describe("modbus", function () {
         it ("exceptionCode 11 (gateway target failed to respond)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,17,144,11]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 9);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 17);
@@ -600,7 +600,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,144,12]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
 
     });
@@ -752,19 +752,19 @@ describe("modbus", function () {
         }
     });
 
-    describe("#exceptionFromBuffer() - readWriteHoldingRegistersException", function () {
+    describe("#replyFromBuffer() - readWriteHoldingRegistersException", function () {
 
         it ("exceptionCode 0 throws an exception", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,19,151,0]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
         
         it ("exceptionCode 1 (illegal function)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,1,0,0,0,3,1,151,1]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 1);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 1);
@@ -777,7 +777,7 @@ describe("modbus", function () {
         it ("exceptionCode 2 (illegal data address)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,2,0,0,0,3,3,151,2]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 2);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 3);
@@ -790,7 +790,7 @@ describe("modbus", function () {
         it ("exceptionCode 3 (illegal data value)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,3,0,0,0,3,5,151,3]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 3);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 5);
@@ -803,7 +803,7 @@ describe("modbus", function () {
         it ("exceptionCode 4 (slave device failure)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,4,0,0,0,3,7,151,4]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 4);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 7);
@@ -816,7 +816,7 @@ describe("modbus", function () {
         it ("exceptionCode 5 (acknowledge)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,5,0,0,0,3,9,151,5]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 5);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 9);
@@ -829,7 +829,7 @@ describe("modbus", function () {
         it ("exceptionCode 6 (slave device busy)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,6,0,0,0,3,11,151,6]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 6);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 11);
@@ -843,13 +843,13 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,151,7]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
 
         it ("exceptionCode 8 (memory parity error)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,7,0,0,0,3,13,151,8]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 7);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 13);
@@ -863,13 +863,13 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,151,9]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
 
         it ("exceptionCode 10 (gateway path unavailable)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,8,0,0,0,3,15,151,10]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 8);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 15);
@@ -882,7 +882,7 @@ describe("modbus", function () {
         it ("exceptionCode 11 (gateway target failed to respond)", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,17,151,11]);
-            let query = modbus.exceptionFromBuffer(buffer);
+            let query = modbus.replyFromBuffer(buffer);
             assert.strictEqual(query.getTransaction(), 9);
             assert.strictEqual(query.getQueryLength(), 3);
             assert.strictEqual(query.getDevice(), 17);
@@ -896,7 +896,7 @@ describe("modbus", function () {
             let modbus = new MODBUS();
             let buffer = Buffer.from([0,9,0,0,0,3,21,151,12]);
             let query;
-            assert.throws(() => { query = modbus.exceptionFromBuffer(buffer); }, ModbusExceptionCodeError);
+            assert.throws(() => { query = modbus.replyFromBuffer(buffer); }, ModbusExceptionCodeError);
         });
 
     });

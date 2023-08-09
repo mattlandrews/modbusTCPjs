@@ -84,16 +84,7 @@ module.exports = function () {
                 buffer.readUInt8(8)
             ));
         }
-        else {
-            throw new ModbusError("invalid function code");
-        }
-    }
-
-    this.exceptionFromBuffer = function (buffer) {
-        if (buffer.length < 9) { throw new ModbusError("buffer too short for valid query"); return; }
-        let queryLength = buffer.readUInt16BE(4);
-        let functionCode = buffer.readUInt8(7);
-        if (functionCode === 131) {
+        else if (functionCode === 131) {
             return new this.readHoldingRegistersException(buffer.readUInt16BE(0), buffer.readUInt8(6), buffer.readUInt8(8));
         }
         else if (functionCode === 144) {
@@ -106,5 +97,5 @@ module.exports = function () {
             throw new ModbusError("invalid function code");
         }
     }
-
+    
 }
