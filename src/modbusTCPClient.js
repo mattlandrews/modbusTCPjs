@@ -25,6 +25,7 @@ module.exports = function () {
                     this.state = "closed";
                     this.errors.push(err);
                     reject(err);
+                    return;
                 }.bind(this));
                 this.socket.listeners("connect").forEach((d) => { this.socket.off("connect", d); });
                 this.socket.connect(this.port, this.host, () => {
@@ -35,12 +36,14 @@ module.exports = function () {
                         try {
                             let reply = this.modbus.replyFromBuffer(buffer);
                             resolve(reply.data);
+                            return;
                         }
                         catch (err) {
                             this.socket.destroy();
                             this.state = "closed";
                             this.errors.push(err);
                             reject(err);
+                            return;
                         }
                     }.bind(this));
                     let query = new this.modbus.readHoldingRegistersRequest(transaction, device, readAddress, readLength);
@@ -49,17 +52,24 @@ module.exports = function () {
             }
             else {
                 this.socket.listeners("error").forEach((d) => { this.socket.off("error", d); });
-                this.socket.on("error", reject.bind(this));
+                this.socket.on("error", ((err) => {
+                    this.socket.destroy();
+                    this.state = "closed";
+                    this.errors.push(err);
+                    reject(err);
+                }).bind(this));
                 this.socket.listeners("data").forEach((d) => { this.socket.off("data", d); });
                 this.socket.on("data", function (buffer) {
                     this.state = "connected";
                     try {
                         let reply = this.modbus.replyFromBuffer(buffer);
                         resolve(reply.data);
+                        return;
                     }
                     catch (err) {
                         this.errors.push(err);
                         reject(err);
+                        return;
                     }
                 }.bind(this));
                 let query = new this.modbus.readHoldingRegistersRequest(transaction, device, readAddress, readLength);
