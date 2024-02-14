@@ -78,5 +78,19 @@ module.exports = function () {
         });
     }
 
+    this.close = function () {
+
+        return new Promise((resolve, reject) => {
+            this.socket.on("close", function () {
+                this.socket.listeners("data").forEach((d) => { this.socket.off("data", d); });
+                this.socket.listeners("on").forEach((d) => { this.socket.off("on", d); });
+                this.socket.listeners("err").forEach((d) => { this.socket.off("err", d); });
+                this.state = "closed";
+                resolve();
+            }.bind(this));
+            this.socket.end();
+        });
+    }
+
     return this;
 }
