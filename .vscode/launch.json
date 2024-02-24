@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Basic Server",
+            "program": "${workspaceFolder}/basicServer.js",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
             "name": "Advanced Server",
             "program": "${workspaceFolder}/advancedServer.js",
             "request": "launch",
@@ -51,12 +60,12 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch modbusServerPerf",
+            "name": "Launch quickServer",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "console":"integratedTerminal",
-            "program": "${workspaceFolder}\\modbusServerPerf.js"
+            "program": "${workspaceFolder}\\quickServer.js"
         }
     ]
 }

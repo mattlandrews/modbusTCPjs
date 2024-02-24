@@ -7,13 +7,15 @@ let mbServer = new MBSERVER();
 mbServer.host = "127.0.0.1";
 mbServer.port = 50200;
 
+let holdingRegisters = new Uint16Array(500);
+
 mbServer.on("readHoldingRegisters", (request, response) => {
-    let data = [];
     let a = request.readAddress;
     let b = request.readAddress + request.readLength;
-    for (let i=a; i<b; i++) {
-        data.push(i);
-    }
+    let data = Array.from(holdingRegisters.slice(a, b));
+    let arr = [...request.buffer];
+    process.stdout.write("\x1b[107m\x1b[30m]" + JSON.stringify(arr));
+    process.stdout.write("\x1b[40m\x1b[97m]" + JSON.stringify(data));
     response(data);
 });
 
