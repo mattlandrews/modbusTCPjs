@@ -44,7 +44,7 @@ module.exports = function () {
 
     function serverConnected (socket) {
         socket.on("error", (err) => {
-            if (err.code === "ECONNRESET") { 
+            if ((err.code === "ECONNRESET") || (err.code === "ECONNABORTED")) { 
                 (serverDisconnected.bind(this, socket))();
                 socket.destroy();
             }
