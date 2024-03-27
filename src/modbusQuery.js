@@ -46,4 +46,5 @@ module.exports = class modbusQuery {
     getBuffer () {
         return this.buffer;
     }
+    
 }

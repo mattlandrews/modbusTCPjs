@@ -2,6 +2,7 @@
 
 const modbusQuery = require("./modbusQuery.js");
 const { ModbusReadAddressError, ModbusReadLengthError } = require("./modbusError.js");
+const colors = require("./terminalColors.js");
 
 module.exports = class readHoldingRegistersRequest extends modbusQuery {
 
@@ -40,6 +41,18 @@ module.exports = class readHoldingRegistersRequest extends modbusQuery {
 
     getReadLength () {
         return this.readLength;
+    }
+
+    toString () {
+        return colors.AllOff
+            + colors.BackgroundLightWhite + colors.ForegroundBlack + "[" + this.getTransaction().toString() + "]"
+            + colors.BackgroundWhite + colors.ForegroundBlack + "[0]"
+            + colors.BackgroundWhite + colors.ForegroundBlack + "[" + this.getQueryLength().toString() + "]"
+            + colors.BackgroundLightWhite + colors.ForegroundBlack + "[" + this.getDevice().toString() + "]"
+            + colors.BackgroundLightYellow + colors.ForegroundBlack + "[" + this.getFunctionCode().toString() + "]"
+            + colors.BackgroundBlue + colors.ForegroundWhite + "[" + this.getReadAddress().toString() + "]"
+            + colors.BackgroundGreen + colors.ForegroundBlack + "[" + this.getReadLength().toString() + "]"
+            + colors.AllOff + colors.ForegroundDefault + colors.BackgroundDefault;
     }
 
 }
