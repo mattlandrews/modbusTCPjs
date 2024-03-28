@@ -47,15 +47,16 @@ module.exports = class readHoldingRegistersReply extends modbusQuery {
 
     toString () {
         let _data = "";
-        this.data.forEach((d) => { _data += "[" + d.toString() + "]"; });
+        this.data.forEach((d) => { _data += "[ " + d.toString() + " ]"; });
         return colors.AllOff
-            + colors.BackgroundBlack + colors.ForegroundLightWhite + "[" + this.getTransaction().toString() + "]"
-            + colors.BackgroundBlack + colors.ForegroundLightGray + "[0]"
-            + colors.BackgroundBlack + colors.ForegroundLightGray + "[" + this.getQueryLength().toString() + "]"
-            + colors.BackgroundBlack + colors.ForegroundLightWhite + "[" + this.getDevice().toString() + "]"
+            + colors.BackgroundBlack + colors.ForegroundLightWhite + "[ " + this.getTransaction().toString() + " ]"
+            + colors.BackgroundBlack + colors.ForegroundLightWhite + "[ 0]"
+            + colors.BackgroundBlack + colors.ForegroundLightWhite + "[ " + this.getQueryLength().toString() + " ]"
+            + colors.BackgroundBlack + colors.ForegroundLightGreen + "[" + this.getDevice().toString() + "]"
             + colors.BackgroundBlack + colors.ForegroundLightYellow + "[" + this.getFunctionCode().toString() + "]"
-            + colors.BackgroundBlack + colors.ForegroundLightGreen + "[" + this.getDataLength().toString() + "]"
-            + colors.BackgroundBlack + colors.ForegroundLightGray + _data;
+            + colors.BackgroundBlack + colors.ForegroundLightBlue + "[" + this.getDataLength().toString() + "]"
+            + colors.BackgroundBlack + colors.ForegroundLightGray + _data
+            + colors.BackgroundDefault + colors.ForegroundDefault;
     }
 
 }

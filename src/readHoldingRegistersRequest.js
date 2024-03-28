@@ -44,7 +44,16 @@ module.exports = class readHoldingRegistersRequest extends modbusQuery {
     }
 
     toString () {
-        return colors.AllOff
+        return colors.BackgroundWhite
+            + colors.ForegroundBlack + "[ " + this.getTransaction().toString() + " ]"
+            + "[ 0 ]"
+            + "[ " + this.getQueryLength().toString() + " ]"
+            + colors.BackgroundLightGreen + colors.ForegroundBlack + "[" + this.getDevice().toString() + "]"
+            + colors.BackgroundLightYellow + colors.ForegroundBlack + "[" + this.getFunctionCode().toString() + "]"
+            + colors.BackgroundLightMagenta + colors.ForegroundBlack + "[ " + this.getReadAddress().toString() + " ]"
+            + colors.BackgroundLightBlue + colors.ForegroundBlack + "[ " + this.getReadLength().toString() + " ]"
+            + colors.BackgroundDefault + colors.ForegroundDefault;
+        /*return colors.AllOff
             + colors.BackgroundLightWhite + colors.ForegroundBlack + "[" + this.getTransaction().toString() + "]"
             + colors.BackgroundWhite + colors.ForegroundBlack + "[0]"
             + colors.BackgroundWhite + colors.ForegroundBlack + "[" + this.getQueryLength().toString() + "]"
@@ -52,7 +61,7 @@ module.exports = class readHoldingRegistersRequest extends modbusQuery {
             + colors.BackgroundLightYellow + colors.ForegroundBlack + "[" + this.getFunctionCode().toString() + "]"
             + colors.BackgroundBlue + colors.ForegroundWhite + "[" + this.getReadAddress().toString() + "]"
             + colors.BackgroundGreen + colors.ForegroundBlack + "[" + this.getReadLength().toString() + "]"
-            + colors.AllOff + colors.ForegroundDefault + colors.BackgroundDefault;
+            + colors.AllOff + colors.ForegroundDefault + colors.BackgroundDefault;*/
     }
 
 }
