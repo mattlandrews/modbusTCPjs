@@ -14,13 +14,11 @@ mbServer.on("readHoldingRegisters", (request, response) => {
     let b = request.readAddress + request.readLength;
     let data = Array.from(holdingRegisters.slice(a, b));
     process.stdout.write(request.toString());
-    //let arr = [...request.buffer];
-    //process.stdout.write("\x1b[107m\x1b[30m]" + JSON.stringify(arr));
-    //process.stdout.write("\x1b[40m\x1b[97m]" + JSON.stringify(data));
     response(data);
 });
 
 mbServer.on("writeHoldingRegisters", (request, response) => {
+    process.stdout.write(request.toString());
     response(true);
 });
 

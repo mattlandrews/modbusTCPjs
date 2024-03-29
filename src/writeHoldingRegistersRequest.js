@@ -2,6 +2,7 @@
 
 const modbusQuery = require("./modbusQuery.js");
 const { ModbusWriteAddressError, ModbusWriteLengthError } = require("./modbusError.js");
+const colors = require("./terminalColors.js");
 
 module.exports = class writeHoldingRegistersRequest extends modbusQuery {
 
@@ -58,4 +59,19 @@ module.exports = class writeHoldingRegistersRequest extends modbusQuery {
         return this.data;
     }
 
+    toString () {
+        let _data = "";
+        this.data.forEach((d) => { _data += "[ " + d.toString() + " ]"; });
+        return colors.BackgroundWhite
+            + colors.ForegroundBlack + "[ " + this.getTransaction().toString() + " ]"
+            + "[ 0 ]"
+            + "[ " + this.getQueryLength().toString() + " ]"
+            + colors.BackgroundLightGreen + colors.ForegroundBlack + "[" + this.getDevice().toString() + "]"
+            + colors.BackgroundLightYellow + colors.ForegroundBlack + "[" + this.getFunctionCode().toString() + "]"
+            + colors.BackgroundLightMagenta + colors.ForegroundBlack + "[ " + this.getWriteAddress().toString() + " ]"
+            + colors.BackgroundLightBlue + colors.ForegroundBlack + "[ " + this.getWriteLength().toString() + " ]"
+            + colors.BackgroundBlue + colors.ForegroundBlack + "[" + this.getDataLength().toString() + "]"
+            + colors.BackgroundBlack + colors.ForegroundLightGray + _data
+            + colors.BackgroundDefault + colors.ForegroundDefault;
+    }
 }

@@ -2,6 +2,7 @@
 
 const modbusQuery = require("./modbusQuery.js");
 const { ModbusFunctionError, ModbusExceptionCodeError } = require("./modbusError.js");
+const colors = require("./terminalColors.js");
 
 module.exports = class modbusException extends modbusQuery {
 
@@ -55,5 +56,16 @@ module.exports = class modbusException extends modbusQuery {
 
     getBuffer () {
         return this.buffer;
+    }
+
+    toString () {
+        return colors.AllOff
+            + colors.BackgroundBlack + colors.ForegroundLightWhite + "[ " + this.getTransaction().toString() + " ]"
+            + colors.BackgroundBlack + colors.ForegroundLightWhite + "[ 0]"
+            + colors.BackgroundBlack + colors.ForegroundLightWhite + "[ " + this.getQueryLength().toString() + " ]"
+            + colors.BackgroundBlack + colors.ForegroundLightGreen + "[" + this.getDevice().toString() + "]"
+            + colors.BackgroundBlack + colors.ForegroundRed + "[" + this.getFunctionCode().toString() + "]"
+            + colors.BackgroundBlack + colors.ForegroundLightRed + "[" + this.getExceptionCode().toString() + "]"
+            + colors.BackgroundDefault + colors.ForegroundDefault;
     }
 }
