@@ -37,7 +37,7 @@ module.exports = class readHoldingRegistersReply extends modbusQuery {
         if ((!Array.isArray(data)) || (data.length < 0) || (data.length > 125)) { throw new ModbusReadLengthError("invalid data"); }
         this.data = data;
         this.data.forEach((d,i) => {
-            this.buffer.writeInt16BE(d, (9 + (i * 2)));
+            this.buffer.writeUInt16BE(d, (9 + (i * 2)));
         });
     }
 
